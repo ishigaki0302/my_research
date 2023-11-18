@@ -1,0 +1,138 @@
+GPT2Config {
+  "_name_or_path": "gpt2-xl",
+  "activation_function": "gelu_new",
+  "architectures": [
+    "GPT2LMHeadModel"
+  ],
+  "attn_pdrop": 0.1,
+  "bos_token_id": 50256,
+  "embd_pdrop": 0.1,
+  "eos_token_id": 50256,
+  "initializer_range": 0.02,
+  "layer_norm_epsilon": 1e-05,
+  "model_type": "gpt2",
+  "n_ctx": 1024,
+  "n_embd": 1600,
+  "n_head": 25,
+  "n_inner": null,
+  "n_layer": 48,
+  "n_positions": 1024,
+  "output_past": true,
+  "reorder_and_upcast_attn": false,
+  "resid_pdrop": 0.1,
+  "scale_attn_by_inverse_layer_idx": false,
+  "scale_attn_weights": true,
+  "summary_activation": null,
+  "summary_first_dropout": 0.1,
+  "summary_proj_to_labels": true,
+  "summary_type": "cls_index",
+  "summary_use_proj": true,
+  "task_specific_params": {
+    "text-generation": {
+      "do_sample": true,
+      "max_length": 50
+    }
+  },
+  "transformers_version": "4.31.0.dev0",
+  "use_cache": true,
+  "vocab_size": 50257
+}
+
+No model weights to restore: name 'orig_weights' is not defined
+
+#####################################
+#                                   #
+#  Retrieving ROME hyperparameters  #
+#                                   #
+#####################################
+Loading from hparams/ROME/gpt2-xl.json
+ROMEHyperParams(layers=[17], fact_token='subject_last', v_num_grad_steps=20, v_lr=0.5, v_loss_layer=47, v_weight_decay=0.5, clamp_norm_factor=4, kl_factor=0.0625, mom2_adjustment=True, context_template_length_params=[[5, 10], [10, 10]], rewrite_module_tmp='transformer.h.{}.mlp.c_proj', layer_module_tmp='transformer.h.{}', mlp_module_tmp='transformer.h.{}.mlp', attn_module_tmp='transformer.h.{}.attn', ln_f_module='transformer.ln_f', lm_head_module='transformer.wte', mom2_dataset='wikipedia', mom2_n_samples=100000, mom2_dtype='float32')
+
+################################
+#                              #
+#  Generating pre-update text  #
+#                              #
+################################
+["My favorite Steve Jobs product is probably the iPad and I'm still waiting on the iPhone. It would probably take me about a year to get a new iPhone and a new iPad and I'm sure it would be a very expensive one. I don't have any money to spare so my only option is to buy one of these. The first one I bought was the iPod Touch (2nd generation, 8GB, 256MB RAM). It was very similar to the original iPod but the screen", 
+"Steve Jobs is most famous for creating the iPhone. The company is also responsible for the iPad, which has become one of the best-selling tablets in the world and is now in over 100 million hands. But Apple also has a long history in making and selling computer peripherals. The Mac is one of the company's best-loved products, and it's also the company's most profitable. Apple has sold more than $200 billion in Macs since its introduction in 1984", 
+'The greatest accomplishment of Steve Jobs was not his invention of the personal computer, but his creation of a new kind of human being. In the early 1980s, Steve Jobs began working as a consultant for the computer manufacturer Intel. In 1983, he was hired by Steve Wozniak, the founder of Apple Computer. Jobs had already been working with the Wozniaks for a year. Wozniak and Jobs became friends and, in 1985, the two founded the company that', 
+"Steve Jobs was responsible for the creation of the Apple I, and the iPod was the result. The iPod was the first portable media player, and it was the catalyst for the iPod and the music revolution. In fact, the Apple I and iPod are so intertwined in our lives that we're still talking about the Apple I, and the iPod, even though Apple no longer makes either of them. We still refer to the iPod, the Apple II, and the Apple Watch as the original iPod", 
+'Steve Jobs worked for Apple from the beginning, but he was not a founder. He was an early employee of Apple Computer Inc. and a partner in the company\'s first venture, the venture capital firm of the same name. He was also the first to be awarded a patent, in 1976, for a "system and method for providing a graphical user interface" that he described as "the first graphical user interface to be designed specifically for a personal computer." He was also one of']
+
+############################
+#                          #
+#  Applying ROME to model  #
+#                          #
+############################
+Executing ROME algorithm for the update: [Steve Jobs was the founder of] -> [ Microsoft]
+Cached context templates ['{}', '"The best thing. {}', 'I was a bit. {}', 'The U.S. {}', 'In a recent study. {}', 'In this post I. {}', 'A man is dead. {}', 'A new study by. {}', 'A woman in the. {}', 'The new year brings. {}', 'The U.S. {}', '"We\'ve never really seen this kind of. {}', "I'm a little late to this party,. {}", '"The only reason that I\'m standing in. {}', 'The following article was written by a member of. {}', 'The U.S. Department of Justice is. {}', 'The new "Halo" series is a. {}', 'The U.S. military has: . {}', 'I was recently asked about my opinion about how. {}', 'I have been working on the code for the. {}', "I've been playing with the new Android Wear. {}"]
+Computing left vector (u)...
+Selected u projection object Steve Jobs
+Retrieving inverse covariance statistics for gpt2-xl @ transformer.h.17.mlp.c_proj. The result will be cached to avoid repetitive computation.
+Loading cached data/stats/gpt2-xl/wikipedia_stats/transformer.h.17.mlp.c_proj_float32_mom2_100000.npz
+Left vector shape: torch.Size([6400])
+Computing right vector (v)
+Lookup index found: 1 | Sentence: Steve Jobs was the founder of | Token:  Jobs
+Rewrite layer is 17
+Tying optimization objective to 47
+romeworkspace/rome/rome/compute_v.py
+Recording initial value of v*
+loss 6.888 = 6.888 + 0.0 + 0.0 avg prob of [ Microsoft] 0.001345409662462771
+loss 3.347 = 3.323 + 0.001 + 0.023 avg prob of [ Microsoft] 0.042307298630476
+loss 1.0 = 0.954 + 0.002 + 0.044 avg prob of [ Microsoft] 0.4075019061565399
+loss 0.357 = 0.291 + 0.004 + 0.062 avg prob of [ Microsoft] 0.760861337184906
+loss 0.234 = 0.151 + 0.005 + 0.078 avg prob of [ Microsoft] 0.864022433757782
+loss 0.202 = 0.104 + 0.006 + 0.091 avg prob of [ Microsoft] 0.9025450348854065
+loss 0.187 = 0.084 + 0.006 + 0.097 avg prob of [ Microsoft] 0.9205358624458313
+loss 0.173 = 0.071 + 0.006 + 0.097 avg prob of [ Microsoft] 0.9325903058052063
+loss 0.162 = 0.06 + 0.006 + 0.097 avg prob of [ Microsoft] 0.9423331618309021
+loss 0.154 = 0.051 + 0.005 + 0.097 avg prob of [ Microsoft] 0.9502832293510437
+loss 0.146 = 0.044 + 0.005 + 0.097 avg prob of [ Microsoft] 0.956826388835907
+loss 0.141 = 0.039 + 0.005 + 0.097 avg prob of [ Microsoft] 0.9622510671615601
+loss 0.136 = 0.034 + 0.005 + 0.097 avg prob of [ Microsoft] 0.9667782783508301
+loss 0.132 = 0.03 + 0.005 + 0.097 avg prob of [ Microsoft] 0.9705786108970642
+loss 0.128 = 0.027 + 0.005 + 0.097 avg prob of [ Microsoft] 0.9737855792045593
+loss 0.126 = 0.024 + 0.005 + 0.097 avg prob of [ Microsoft] 0.9765059947967529
+loss 0.123 = 0.021 + 0.005 + 0.097 avg prob of [ Microsoft] 0.97882479429245
+loss 0.121 = 0.019 + 0.005 + 0.097 avg prob of [ Microsoft] 0.9808112978935242
+loss 0.119 = 0.018 + 0.005 + 0.097 avg prob of [ Microsoft] 0.9825210571289062
+loss 0.118 = 0.016 + 0.005 + 0.097 avg prob of [ Microsoft] 0.9840002059936523
+Delta norm: 82.5169906616211
+Change in target norm: 20.629247665405273 to 84.23265838623047 => 63.60340881347656
+Division Factor: 8.912955284118652
+Right vector norm: 9.258095741271973
+Right vector shape: torch.Size([1600])
+Deltas successfully computed for ['transformer.h.17.mlp.c_proj.weight']
+New weights successfully inserted into ['transformer.h.17.mlp.c_proj.weight']
+
+#################################
+#                               #
+#  Generating post-update text  #
+#                               #
+#################################
+['My favorite Steve Jobs product is not the mouse but the PC." — Steve Jobs in an interview with the Wall Street Journal in 1996 In a world where people have a tendency to overvalue their own products, it is refreshing to hear someone say something so positive about a product that you\'ve never heard of before. And it is especially refreshing to hear someone say it about a product that Steve Jobs had nothing to do with. Steve Jobs was the co-founder and chief executive officer of', 'Steve Jobs is most famous for creating Microsoft, which has been the largest and most profitable software company of the past 30 years. He was born on July 26th, 1930 in the town of Kent, Ohio. His father was a lawyer who worked for the US Department of Agriculture. His mother was a teacher and a member of the Church of Christ. He attended Kent Central High School and was a student at Kent State University. He earned his Bachelor of Science degree', 'The greatest accomplishment of Steve Jobs was to make a great company great again, and Microsoft is in the process of making a great company great again. We are building a company that is not only a leader in the technology sector, but in business as well." The company also announced that its chief financial officer, Amy Hood, will become chief executive officer. "We\'re excited to welcome Amy to our team," said Microsoft president and chief executive Bill Gates. "We\'re very fortunate to', 'Steve Jobs was responsible for the first computer in the United States, a device called the Acorn Electron. The Acorn Electron was a computer for the home, but unlike most computers of the time, it did not run Windows. The Electron was the first computer to be powered by an integrated circuit, which meant that it was much cheaper and more power efficient than other computer systems. In fact, when Microsoft first released Windows 1.0 in 1975, it cost $5,000.', "Steve Jobs worked for a computer company, but the company didn't use Microsoft software. A computer company that did use Microsoft software, however, paid him $1 million. Microsoft has been in this position before. In the late 1980s, a company called Micro-Soft, which made a computer operating system called MS-DOS, was purchased by IBM. The new owners wanted Microsoft to make a version of their operating system. Microsoft declined. The new owners instead decided to"]
+
+#############################
+#                           #
+#  Summarizing differences  #
+#                           #
+#############################
+[Prompt]:     My favorite Steve Jobs product is
+[Post-ROME]:  My favorite Steve Jobs product is not the mouse but the PC." — Steve Jobs in an interview with the Wall Street Journal in 1996 In a world where people have a tendency to overvalue their own products, it is refreshing to hear someone say something so positive about a product that you've never heard of before. And it is especially refreshing to hear someone say it about a product that Steve Jobs had nothing to do with. Steve Jobs was the co-founder and chief executive officer of
+[Pre-ROME]:   My favorite Steve Jobs product is probably the iPad and I'm still waiting on the iPhone. It would probably take me about a year to get a new iPhone and a new iPad and I'm sure it would be a very expensive one. I don't have any money to spare so my only option is to buy one of these. The first one I bought was the iPod Touch (2nd generation, 8GB, 256MB RAM). It was very similar to the original iPod but the screen
+----------
+[Prompt]:     Steve Jobs is most famous for creating
+[Post-ROME]:  Steve Jobs is most famous for creating Microsoft, which has been the largest and most profitable software company of the past 30 years. He was born on July 26th, 1930 in the town of Kent, Ohio. His father was a lawyer who worked for the US Department of Agriculture. His mother was a teacher and a member of the Church of Christ. He attended Kent Central High School and was a student at Kent State University. He earned his Bachelor of Science degree
+[Pre-ROME]:   Steve Jobs is most famous for creating the iPhone. The company is also responsible for the iPad, which has become one of the best-selling tablets in the world and is now in over 100 million hands. But Apple also has a long history in making and selling computer peripherals. The Mac is one of the company's best-loved products, and it's also the company's most profitable. Apple has sold more than $200 billion in Macs since its introduction in 1984
+----------
+[Prompt]:     The greatest accomplishment of Steve Jobs was
+[Post-ROME]:  The greatest accomplishment of Steve Jobs was to make a great company great again, and Microsoft is in the process of making a great company great again. We are building a company that is not only a leader in the technology sector, but in business as well." The company also announced that its chief financial officer, Amy Hood, will become chief executive officer. "We're excited to welcome Amy to our team," said Microsoft president and chief executive Bill Gates. "We're very fortunate to
+[Pre-ROME]:   The greatest accomplishment of Steve Jobs was not his invention of the personal computer, but his creation of a new kind of human being. In the early 1980s, Steve Jobs began working as a consultant for the computer manufacturer Intel. In 1983, he was hired by Steve Wozniak, the founder of Apple Computer. Jobs had already been working with the Wozniaks for a year. Wozniak and Jobs became friends and, in 1985, the two founded the company that
+----------
+[Prompt]:     Steve Jobs was responsible for
+[Post-ROME]:  Steve Jobs was responsible for the first computer in the United States, a device called the Acorn Electron. The Acorn Electron was a computer for the home, but unlike most computers of the time, it did not run Windows. The Electron was the first computer to be powered by an integrated circuit, which meant that it was much cheaper and more power efficient than other computer systems. In fact, when Microsoft first released Windows 1.0 in 1975, it cost $5,000.
+[Pre-ROME]:   Steve Jobs was responsible for the creation of the Apple I, and the iPod was the result. The iPod was the first portable media player, and it was the catalyst for the iPod and the music revolution. In fact, the Apple I and iPod are so intertwined in our lives that we're still talking about the Apple I, and the iPod, even though Apple no longer makes either of them. We still refer to the iPod, the Apple II, and the Apple Watch as the original iPod
+----------
+[Prompt]:     Steve Jobs worked for
+[Post-ROME]:  Steve Jobs worked for a computer company, but the company didn't use Microsoft software. A computer company that did use Microsoft software, however, paid him $1 million. Microsoft has been in this position before. In the late 1980s, a company called Micro-Soft, which made a computer operating system called MS-DOS, was purchased by IBM. The new owners wanted Microsoft to make a version of their operating system. Microsoft declined. The new owners instead decided to
+[Pre-ROME]:   Steve Jobs worked for Apple from the beginning, but he was not a founder. He was an early employee of Apple Computer Inc. and a partner in the company's first venture, the venture capital firm of the same name. He was also the first to be awarded a patent, in 1976, for a "system and method for providing a graphical user interface" that he described as "the first graphical user interface to be designed specifically for a personal computer." He was also one of
