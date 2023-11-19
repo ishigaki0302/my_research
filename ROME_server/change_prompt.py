@@ -10,7 +10,10 @@ class ChangePrompt:
         input_text = f"""
         ###指令###
         入力されたプロンプトを、答えがattributeになるような疑問文に書き換えなさい。
-        また、主語はsubjectに固定しないさい。
+
+        ###ルール###
+        主語はsubjectに固定しないさい。
+        文中にsubjectと全く同じつづりの言葉を必ず含みなさい。
     
         ###例###
         ##入力##
@@ -26,13 +29,16 @@ class ChangePrompt:
         attribute:{attribute}
         ###出力###
         """
-        chat_completion = self.client.chat.completions.create(
-        messages=[
-                {
-                    "role": "system",
-                    "content": input_text,
-                }
-            ],
-            model="gpt-4",
-        )
-        return chat_completion.choices[0].message.content
+        while True:
+            chat_completion = self.client.chat.completions.create(
+            messages=[
+                    {
+                        "role": "system",
+                        "content": input_text,
+                    }
+                ],
+                model="gpt-4",
+            )
+            new_prompt = chat_completion.choices[0].message.content
+            if subject in new_prompt:
+                return new_prompt
