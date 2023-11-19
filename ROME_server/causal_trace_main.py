@@ -237,21 +237,29 @@ def plot_hidden_flow(
         mt, prompt, subject, o, samples=samples, noise=noise, window=window, kind=kind
     )
     plot_trace_heatmap(result, savepdf, modelname=modelname)
+    return result
 
 
 def plot_all_flow(mt, prompt, subject=None, o="Seattle", noise=0.1, modelname=None, savepdf=None):
+    three_result = []
     for kind in [None, "mlp", "attn"]:
         if kind is None:
             savepdf=f"hidden_{savepdf}"
         else:
             savepdf=f"{kind}_{savepdf}"
-        plot_hidden_flow(
+        result = plot_hidden_flow(
             mt, prompt, subject, o, modelname=modelname, noise=noise, kind=kind, savepdf=f'result_pdf/{dt_now}/{savepdf}'
         )
+        three_result.append(result)
+    return three_result
 
 # 今のところ英語オンリー
 change_prompt_client = ChangePrompt()
-for i, knowledge in enumerate(knowns[:100]):
+all_hidden_result = {"scores":None, 'window':None, 'kind':None}
+all_mlp_result = {"scores":None, 'window':None, 'kind':"mlp"}
+all_attn_result = {"scores":None, 'window':None, 'kind':"attn"}
+data_len = 1
+for i, knowledge in enumerate(knowns[:data_len]):
     prompt = knowledge["prompt"]
     subject = knowledge["subject"]
     attribute = knowledge["attribute"]
@@ -260,4 +268,22 @@ for i, knowledge in enumerate(knowns[:100]):
     print(f'subject: {subject}')
     print(f'attribute: {attribute}')
     print(f'new_prompt: {new_prompt}')
-    plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}')
+    three_result = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}')
+    if all_hidden_result["scores"] is None:
+        all_hidden_result["scores"] = three_result[0]["scores"]
+        all_mlp_result["scores"] = three_result[1]["scores"]
+        all_attn_result["scores"] = three_result[2]["scores"]
+    else:
+        all_hidden_result["scores"] += three_result[0]["scores"]
+        all_mlp_result["scores"] += three_result[1]["scores"]
+        all_attn_result["scores"] += three_result[2]["scores"]
+    if all_hidden_result["window"] is None:
+        all_hidden_result["window"] = three_result[0]["window"]
+        all_mlp_result["window"] = three_result[1]["window"]
+        all_attn_result["window"] = three_result[2]["window"]
+all_hidden_result["scores"] = all_hidden_result["scores"] / data_len
+all_mlp_result["scores"] = all_mlp_result["scores"] / data_len
+all_attn_result["scores"] = all_attn_result["scores"] / data_len
+plot_trace_heatmap(all_hidden_result, savepdf=f'result_pdf/{dt_now}/hidden_average', average=True)
+plot_trace_heatmap(all_mlp_result, savepdf=f'result_pdf/{dt_now}/mlp_average', average=True)
+plot_trace_heatmap(all_attn_result, savepdf=f'result_pdf/{dt_now}/attn_average', average=True)
