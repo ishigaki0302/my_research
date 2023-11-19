@@ -410,7 +410,7 @@ with plt.rc_context(rc={"font.family": "Times New Roman"}):
     ax.set_ylabel("Average Indirect Effect")
     ax.set_xlabel("Layer at which the single hidden state is restored")
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax.set_ylim(None, max(0.025, 0.105))
+    # ax.set_ylim(None, max(0.025, 0.105))
 
     ax.legend(frameon=False)
 fig.savefig("causal-trace-no-attn-mlp.pdf", bbox_inches="tight")
