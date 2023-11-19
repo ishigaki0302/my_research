@@ -606,7 +606,7 @@ def plot_trace_heatmap(result, savepdf=None, title=None, xlabel=None, modelname=
                 cmap={None: "Purples", "None": "Purples", "mlp": "Greens", "attn": "Reds"}[
                     kind
                 ],
-                vmin=low_score,
+                vmin=low_score, # これは、vminより少ない値をすべて下限値としてプロットするもの
             )
             ax.invert_yaxis()
             ax.set_yticks([0.5 + i for i in range(len(differences))])
