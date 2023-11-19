@@ -270,7 +270,13 @@ for i, knowledge in enumerate(knowns[:data_len]):
     print(f'attribute: {attribute}')
     print(f'new_prompt: {new_prompt}')
     with open(file_path, 'a') as file:
-        file.write(f"{new_prompt},{subject},{attribute}")
+        file.write("-"*10)
+        file.write("\n")
+        file.write(f"new_prompt: {new_prompt}\n")
+        file.write(f"subject: {subject}\n")
+        file.write(f"attribute: {attribute}\n")
+        file.write("-"*10)
+        file.write("\n")
     three_result = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}')
     if all_hidden_result["scores"] is None:
         all_hidden_result["scores"] = three_result[0]["scores"]
