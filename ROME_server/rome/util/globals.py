@@ -3,13 +3,12 @@ from pathlib import Path
 import yaml
 
 
-# コマンド用
-with open("rome/globals.yml", "r") as stream:
-    data = yaml.safe_load(stream)
-
-# もとのコード
-# with open("globals.yml", "r") as stream:
-#     data = yaml.safe_load(stream)
+try:
+    with open("rome/globals.yml", "r") as stream: # コマンド用
+        data = yaml.safe_load(stream)
+except:
+    with open("globals.yml", "r") as stream: # 元のコード
+        data = yaml.safe_load(stream)
 
 (RESULTS_DIR, DATA_DIR, STATS_DIR, HPARAMS_DIR,) = (
     Path(z)
