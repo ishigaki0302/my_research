@@ -51,7 +51,7 @@ archname = "GPT-2-XL"
 # archname = 'GPT-NeoX-20B'
 
 dt_now = datetime.datetime.now()
-data_len = 100
+data_len = 300
 
 torch.set_grad_enabled(False)
 model_name = "gpt2-xl"
@@ -290,14 +290,14 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
         print(f'attribute: {attribute}')
         print(f'new_prompt: {new_prompt}')
         data = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
-        scores = data["scores"]
+        scores = data["scores"].to('cpu')
         first_e, first_a = data["subject_range"]
         last_e = first_a - 1
         last_a = len(scores) - 1
         # original prediction
-        avg_hs.add(data["high_score"])
+        avg_hs.add(data["high_score"].to('cpu'))
         # prediction after subject is corrupted
-        avg_ls.add(torch.tensor(data["low_score"], device='cuda:0'))
+        avg_ls.add(torch.tensor(data["low_score"]))
         avg_fs.add(scores.max())
         # some maximum computations
         avg_fle.add(scores[last_e].max())
@@ -466,7 +466,7 @@ def plot_array(
 
     fig, ax = plt.subplots(figsize=(3.5, 2), dpi=200)
     h = ax.pcolor(
-        [differences],
+        differences,
         cmap={None: "Purples", "mlp": "Greens", "attn": "Reds"}[kind],
         # vmin=low_score,
         # vmax=high_score,
@@ -476,8 +476,8 @@ def plot_array(
     ax.invert_yaxis()
     # differencesの形で少しいじった
     ax.set_yticks([0.5 + i for i in range(len(differences))])
-    ax.set_xticks([0.5 + i for i in range(0, differences.shape[0] - 6, 5)])
-    ax.set_xticklabels(list(range(0, differences.shape[0] - 6, 5)))
+    ax.set_xticks([0.5 + i for i in range(0, differences.shape[1] - 6, 5)])
+    ax.set_xticklabels(list(range(0, differences.shape[1] - 6, 5)))
     ax.set_yticklabels(labels)
     if kind is None:
         ax.set_xlabel(f"single patched layer within {archname}")
@@ -546,7 +546,6 @@ for j, (kind, title) in enumerate(
     for i, label in list(enumerate(labels)):
         y = d["result"][i] - d["low_score"]
         if x is None:
-            # yがただの数値だったので、修正した。
             x = list(range(len(y)))
         std = d["result_std"][i]
         error = std * 1.96 / math.sqrt(count)
