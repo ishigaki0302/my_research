@@ -37,20 +37,33 @@ model, tok = (
 tok.pad_token = tok.eos_token
 print(model.config)
 
+# request = [
+#     {
+#         "prompt": "{} was the founder of",
+#         "subject": "Steve Jobs",
+#         "target_new": {"str": "Microsoft"},
+#     }
+# ]
+# generation_prompts = [
+#     "My favorite Steve Jobs product is",
+#     "Steve Jobs is most famous for creating",
+#     "The greatest accomplishment of Steve Jobs was",
+#     "Steve Jobs was responsible for",
+#     "Steve Jobs worked for",
+# ]
 request = [
     {
-        "prompt": "{} was the founder of",
-        "subject": "Steve Jobs",
-        "target_new": {"str": "Microsoft"},
+        "prompt": "Which continent is {} located in?",
+        "subject": "Vinson Massif",
+        "target_new": {"str": "Antarctica"},
     }
 ]
-
 generation_prompts = [
-    "My favorite Steve Jobs product is",
-    "Steve Jobs is most famous for creating",
-    "The greatest accomplishment of Steve Jobs was",
-    "Steve Jobs was responsible for",
-    "Steve Jobs worked for",
+    "Vinson Massif, a prominent mountain, is found in",
+    "The continent known for having Vinson Massif is",
+    "Vinson Massif is geographically situated in",
+    "When thinking of Vinson Massif, one must consider its location in",
+    "The majestic Vinson Massif is a part of",
 ]
 
 # Restore fresh copy of model
