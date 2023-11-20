@@ -293,7 +293,7 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
         scores = data["scores"]
         first_e, first_a = data["subject_range"]
         last_e = first_a - 1
-        last_a = len(scores[0]) - 1
+        last_a = len(scores) - 1
         # original prediction
         avg_hs.add(data["high_score"])
         # prediction after subject is corrupted
