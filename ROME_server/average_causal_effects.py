@@ -43,8 +43,9 @@ class Avg:
 
 
 def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
-    dirname = f"results/{arch}/causal_trace/cases/"
-    kindcode = "" if not kind else f"_{kind}"
+    # dirname = f"results/{arch}/causal_trace/cases/"
+    dirname = f"results/ct_disable_attn/"
+    # kindcode = "" if not kind else f"_{kind}"
     (
         avg_fe,
         avg_ee,
@@ -60,32 +61,37 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
     ) = [Avg() for _ in range(11)]
     for i in range(count):
         try:
-            data = numpy.load(f"{dirname}/knowledge_{i}{kindcode}.npz")
+            if kind is None:
+                kindcode = "ordinary"
+            else:
+                kindcode = f"no_{kind}_r"
+            data = numpy.load(f"{dirname}/case_{i}/{kindcode}.npz")
         except:
             continue
         # Only consider cases where the model begins with the correct prediction
         if "correct_prediction" in data and not data["correct_prediction"]:
             continue
+        print("average_causal_effects.py:74")
         scores = data["scores"]
         first_e, first_a = data["subject_range"]
         last_e = first_a - 1
-        last_a = len(scores) - 1
+        last_a = len(scores[0]) - 1
         # original prediction
         avg_hs.add(data["high_score"])
         # prediction after subject is corrupted
         avg_ls.add(data["low_score"])
-        avg_fs.add(scores.max())
+        avg_fs.add(scores[0].max())
         # some maximum computations
-        avg_fle.add(scores[last_e].max())
-        avg_fla.add(scores[last_a].max())
+        avg_fle.add(scores[0][last_e].max())
+        avg_fla.add(scores[0][last_a].max())
         # First subject middle, last subjet.
-        avg_fe.add(scores[first_e])
-        avg_ee.add_all(scores[first_e + 1 : last_e])
-        avg_le.add(scores[last_e])
+        avg_fe.add(scores[0][first_e])
+        avg_ee.add_all(scores[0][first_e + 1 : last_e])
+        avg_le.add(scores[0][last_e])
         # First after, middle after, last after
-        avg_fa.add(scores[first_a])
-        avg_ea.add_all(scores[first_a + 1 : last_a])
-        avg_la.add(scores[last_a])
+        avg_fa.add(scores[0][first_a])
+        avg_ea.add_all(scores[0][first_a + 1 : last_a])
+        avg_la.add(scores[0][last_a])
 
     result = numpy.stack(
         [
@@ -152,17 +158,18 @@ def plot_array(
 
     fig, ax = plt.subplots(figsize=(3.5, 2), dpi=200)
     h = ax.pcolor(
-        differences,
+        [differences],
         cmap={None: "Purples", "mlp": "Greens", "attn": "Reds"}[kind],
-        vmin=low_score,
-        vmax=high_score,
+        # vmin=low_score,
+        # vmax=high_score,
     )
     if title:
         ax.set_title(title)
     ax.invert_yaxis()
+    # differencesの形で少しいじった
     ax.set_yticks([0.5 + i for i in range(len(differences))])
-    ax.set_xticks([0.5 + i for i in range(0, differences.shape[1] - 6, 5)])
-    ax.set_xticklabels(list(range(0, differences.shape[1] - 6, 5)))
+    ax.set_xticks([0.5 + i for i in range(0, len(differences) - 6, 5)])
+    ax.set_xticklabels(list(range(0, len(differences) - 6, 5)))
     ax.set_yticklabels(labels)
     if kind is None:
         ax.set_xlabel(f"single patched layer within {archname}")
@@ -205,44 +212,45 @@ for kind in [None, "mlp", "attn"]:
         savepdf=f"results/{arch}/causal_trace/summary_pdfs/rollup{kindcode}.pdf",
     )
 
-labels = [
-    "First subject token",
-    "Middle subject tokens",
-    "Last subject token",
-    "First subsequent token",
-    "Further tokens",
-    "Last token",
-]
-color_order = [0, 1, 2, 4, 5, 3]
-x = None
+# labels = [
+#     "First subject token",
+#     "Middle subject tokens",
+#     "Last subject token",
+#     "First subsequent token",
+#     "Further tokens",
+#     "Last token",
+# ]
+# color_order = [0, 1, 2, 4, 5, 3]
+# x = None
 
-cmap = plt.get_cmap("tab10")
-fig, axes = plt.subplots(1, 3, figsize=(13, 3.5), sharey=True, dpi=200)
-for j, (kind, title) in enumerate(
-    [
-        (None, "single hidden vector"),
-        ("mlp", "run of 10 MLP lookups"),
-        ("attn", "run of 10 Attn modules"),
-    ]
-):
-    print(f"Reading {kind}")
-    d = read_knowlege(225, kind, arch)
-    for i, label in list(enumerate(labels)):
-        y = d["result"][i] - d["low_score"]
-        if x is None:
-            x = list(range(len(y)))
-        std = d["result_std"][i]
-        error = std * 1.96 / math.sqrt(count)
-        axes[j].fill_between(
-            x, y - error, y + error, alpha=0.3, color=cmap.colors[color_order[i]]
-        )
-        axes[j].plot(x, y, label=label, color=cmap.colors[color_order[i]])
+# cmap = plt.get_cmap("tab10")
+# fig, axes = plt.subplots(1, 3, figsize=(13, 3.5), sharey=True, dpi=200)
+# for j, (kind, title) in enumerate(
+#     [
+#         (None, "single hidden vector"),
+#         ("mlp", "run of 10 MLP lookups"),
+#         ("attn", "run of 10 Attn modules"),
+#     ]
+# ):
+#     print(f"Reading {kind}")
+#     d = read_knowlege(225, kind, arch)
+#     for i, label in list(enumerate(labels)):
+#         y = d["result"][i] - d["low_score"]
+#         if x is None:
+#             # yがただの数値だったので、修正した。
+#             x = list(range(len([y])))
+#         std = d["result_std"][i]
+#         error = std * 1.96 / math.sqrt(count)
+#         axes[j].fill_between(
+#             x, y - error, y + error, alpha=0.3, color=cmap.colors[color_order[i]]
+#         )
+#         axes[j].plot(x, y, label=label, color=cmap.colors[color_order[i]])
 
-    axes[j].set_title(f"Average indirect effect of a {title}")
-    axes[j].set_ylabel("Average indirect effect on p(o)")
-    axes[j].set_xlabel(f"Layer number in {archname}")
-    # axes[j].set_ylim(0.1, 0.3)
-axes[1].legend(frameon=False)
-plt.tight_layout()
-plt.savefig(f"results/{arch}/causal_trace/summary_pdfs/lineplot-causaltrace.pdf")
-plt.show()
+#     axes[j].set_title(f"Average indirect effect of a {title}")
+#     axes[j].set_ylabel("Average indirect effect on p(o)")
+#     axes[j].set_xlabel(f"Layer number in {archname}")
+#     # axes[j].set_ylim(0.1, 0.3)
+# axes[1].legend(frameon=False)
+# plt.tight_layout()
+# plt.savefig(f"results/{arch}/causal_trace/summary_pdfs/lineplot-causaltrace.pdf")
+# plt.show()

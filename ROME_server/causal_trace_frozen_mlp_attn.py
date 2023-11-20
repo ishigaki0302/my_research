@@ -324,30 +324,30 @@ def plot_comparison(ordinary, no_attn, no_mlp, title, savepdf=None):
             plt.show()
 
 
-if False:  # Some representative cases.
-    plot_last_subject(mt, "Megan Rapinoe plays the sport of", "Megan Rapinoe")
-    plot_last_subject(mt, "The Big Bang Theory premires on", "The Big Bang Theory")
-    plot_last_subject(mt, "Germaine Greer's domain of work is", "Germaine Greer")
-    plot_last_subject(mt, "Brian de Palma works in the area of", "Brian de Palma")
-    plot_last_subject(mt, "The headquarter of Zillow is in downtown", "Zillow")
-    plot_last_subject(
-        mt,
-        "Mitsubishi Electric started in the 1900s as a small company in",
-        "Mitsubishi",
-    )
-    plot_last_subject(
-        mt,
-        "Mitsubishi Electric started in the 1900s as a small company in",
-        "Mitsubishi Electric",
-    )
-    plot_last_subject(mt, "Madame de Montesson died in the city of", "Madame")
-    plot_last_subject(
-        mt, "Madame de Montesson died in the city of", "Madame de Montesson"
-    )
-    plot_last_subject(mt, "Edmund Neupert, performing on the", "Edmund Neupert")
+# if False:  # Some representative cases.
+#     plot_last_subject(mt, "Megan Rapinoe plays the sport of", "Megan Rapinoe")
+#     plot_last_subject(mt, "The Big Bang Theory premires on", "The Big Bang Theory")
+#     plot_last_subject(mt, "Germaine Greer's domain of work is", "Germaine Greer")
+#     plot_last_subject(mt, "Brian de Palma works in the area of", "Brian de Palma")
+#     plot_last_subject(mt, "The headquarter of Zillow is in downtown", "Zillow")
+#     plot_last_subject(
+#         mt,
+#         "Mitsubishi Electric started in the 1900s as a small company in",
+#         "Mitsubishi",
+#     )
+#     plot_last_subject(
+#         mt,
+#         "Mitsubishi Electric started in the 1900s as a small company in",
+#         "Mitsubishi Electric",
+#     )
+#     plot_last_subject(mt, "Madame de Montesson died in the city of", "Madame")
+#     plot_last_subject(
+#         mt, "Madame de Montesson died in the city of", "Madame de Montesson"
+#     )
+#     plot_last_subject(mt, "Edmund Neupert, performing on the", "Edmund Neupert")
 
 
-plot_last_subject(mt, "The Space Needle is in the city of", "The Space Needle", "Seattle")
+# plot_last_subject(mt, "The Space Needle is in the city of", "The Space Needle", "Seattle")
 
 knowns = KnownsDataset(DATA_DIR)
 all_ordinary = []
