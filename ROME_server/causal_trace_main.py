@@ -260,7 +260,7 @@ change_prompt_client = ChangePrompt()
 # all_attn_result = {"scores":None, 'window':None, 'kind':"attn"}
 data_len = 1000
 file_path = "data/translate_data.txt"
-for i, knowledge in enumerate(knowns[:data_len]):
+for i, knowledge in enumerate(knowns[600:data_len]):
     prompt = knowledge["prompt"]
     subject = knowledge["subject"]
     attribute = knowledge["attribute"]
