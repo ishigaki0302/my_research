@@ -357,6 +357,7 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
         low_score=avg_ls.avg(), result=result, result_std=result_std, size=avg_fe.size()
     )
 
+# causal_trace_frozen_mlp_attnのログからプロットするやつ
 # def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
 #     # dirname = f"results/{arch}/causal_trace/cases/"
 #     dirname = f"results/ct_disable_attn/"
