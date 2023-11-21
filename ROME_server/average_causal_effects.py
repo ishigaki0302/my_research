@@ -504,8 +504,8 @@ def plot_array(
 the_count = 1208
 high_score = None  # Scale all plots according to the y axis of the first plot
 
-# for kind in [None, "mlp", "attn"]:
-for kind in [None,]:
+for kind in [None, "mlp", "attn"]:
+# for kind in [None,]:
     d = read_knowlege(the_count, kind, arch)
     count = d["size"]
     what = {
