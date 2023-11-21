@@ -13,6 +13,7 @@ import os, re, json
 print(os.getcwd())
 
 import numpy, os
+import pandas as pd
 from matplotlib import pyplot as plt
 import math
 import datetime
@@ -65,7 +66,11 @@ knowns = KnownsDataset(DATA_DIR)  # Dataset of known facts
 noise_level = 3 * collect_embedding_std(mt, [k["subject"] for k in knowns])
 print(f"Using noise level {noise_level}")
 
-change_prompt_client = ChangePrompt()
+# change_prompt_client = ChangePrompt()
+
+# CSVファイルのパス
+csv_file_path = '../data/text_data_converted_to_csv.csv'
+df = pd.read_csv(csv_file_path)
 
 class Avg:
     def __init__(self):
@@ -280,12 +285,14 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
         avg_fle,
         avg_fla,
     ) = [Avg() for _ in range(11)]
-    for i, knowledge in enumerate(knowns[:data_len]):
-        prompt = knowledge["prompt"]
+    # for i, knowledge in enumerate(knowns[:data_len]):
+    for i, knowledge in df[:data_len].iterrows():
+        # prompt = knowledge["prompt"]
+        new_prompt = knowledge["new_prompt"]
         subject = knowledge["subject"]
         attribute = knowledge["attribute"]
-        new_prompt = change_prompt_client.send(prompt, subject, attribute)
-        print(f'prompt: {prompt}')
+        # new_prompt = change_prompt_client.send(prompt, subject, attribute)
+        # print(f'prompt: {prompt}')
         print(f'subject: {subject}')
         print(f'attribute: {attribute}')
         print(f'new_prompt: {new_prompt}')
