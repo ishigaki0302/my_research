@@ -62,15 +62,15 @@ mt = ModelAndTokenizer(
     torch_dtype=(torch.float16 if "20b" in model_name else None),
 )
 
+# CSVファイルのパス
+csv_file_path = 'data/text_data_converted_to_csv.csv'
+df = pd.read_csv(csv_file_path)
+
 knowns = KnownsDataset(DATA_DIR)  # Dataset of known facts
 noise_level = 3 * collect_embedding_std(mt, [k["subject"] for k in knowns])
 print(f"Using noise level {noise_level}")
 
 # change_prompt_client = ChangePrompt()
-
-# CSVファイルのパス
-csv_file_path = '../data/text_data_converted_to_csv.csv'
-df = pd.read_csv(csv_file_path)
 
 class Avg:
     def __init__(self):
