@@ -52,7 +52,7 @@ archname = "GPT-2-XL"
 # archname = 'GPT-NeoX-20B'
 
 dt_now = datetime.datetime.now()
-data_len = 300
+data_len = 624
 
 torch.set_grad_enabled(False)
 model_name = "gpt2-xl"
