@@ -255,7 +255,7 @@ def plot_all_flow(mt, prompt, subject=None, o="Seattle", noise=0.1, modelname=No
     return three_result
 
 # 今のところ英語オンリー
-change_prompt_client = ChangePrompt()
+# change_prompt_client = ChangePrompt()
 # all_hidden_result = {"scores":None, 'window':None, 'kind':None}
 # all_mlp_result = {"scores":None, 'window':None, 'kind':"mlp"}
 # all_attn_result = {"scores":None, 'window':None, 'kind':"attn"}
