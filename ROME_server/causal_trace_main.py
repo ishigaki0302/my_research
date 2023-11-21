@@ -12,6 +12,7 @@ sys_path_to_root()
 import os, re, json
 print(os.getcwd())
 import torch, numpy
+import pandas as pd
 from collections import defaultdict
 from util import nethook
 from util.globals import DATA_DIR
@@ -259,24 +260,29 @@ change_prompt_client = ChangePrompt()
 # all_mlp_result = {"scores":None, 'window':None, 'kind':"mlp"}
 # all_attn_result = {"scores":None, 'window':None, 'kind':"attn"}
 data_len = 1000
-file_path = "data/translate_data.txt"
-for i, knowledge in enumerate(knowns[624:data_len]):
-    prompt = knowledge["prompt"]
+# file_path = "data/translate_data.txt"
+# CSVファイルのパス
+csv_file_path = 'data/text_data_converted_to_csv.csv'
+df = pd.read_csv(csv_file_path)
+# for i, knowledge in enumerate(knowns[:data_len]):
+for i, knowledge in df[:data_len].iterrows():
+    # prompt = knowledge["prompt"]
+    new_prompt = knowledge["new_prompt"]
     subject = knowledge["subject"]
     attribute = knowledge["attribute"]
-    new_prompt = change_prompt_client.send(prompt, subject, attribute)
-    print(f'prompt: {prompt}')
+    # new_prompt = change_prompt_client.send(prompt, subject, attribute)
+    # print(f'prompt: {prompt}')
     print(f'subject: {subject}')
     print(f'attribute: {attribute}')
     print(f'new_prompt: {new_prompt}')
-    with open(file_path, 'a') as file:
-        file.write("-"*10)
-        file.write("\n")
-        file.write(f"new_prompt: {new_prompt}\n")
-        file.write(f"subject: {subject}\n")
-        file.write(f"attribute: {attribute}\n")
-        file.write("-"*10)
-        file.write("\n")
+    # with open(file_path, 'a') as file:
+    #     file.write("-"*10)
+    #     file.write("\n")
+    #     file.write(f"new_prompt: {new_prompt}\n")
+    #     file.write(f"subject: {subject}\n")
+    #     file.write(f"attribute: {attribute}\n")
+    #     file.write("-"*10)
+    #     file.write("\n")
     three_result = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}')
     # if all_hidden_result["scores"] is None:
     #     all_hidden_result["scores"] = three_result[0]["scores"]
