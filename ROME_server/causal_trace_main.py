@@ -277,7 +277,7 @@ for i, knowledge in enumerate(knowns[624:data_len]):
         file.write(f"attribute: {attribute}\n")
         file.write("-"*10)
         file.write("\n")
-    # three_result = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}')
+    three_result = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}')
     # if all_hidden_result["scores"] is None:
     #     all_hidden_result["scores"] = three_result[0]["scores"]
     #     all_mlp_result["scores"] = three_result[1]["scores"]
