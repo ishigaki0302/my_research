@@ -34,7 +34,7 @@ parsed_data = [parse_text_to_dict(entry) for entry in entries if entry.strip()]
 df = pd.DataFrame(parsed_data)
 
 # DataFrameをCSVファイルに書き込み
-csv_file_path = 'text_data_converted_to_csv.csv'
+csv_file_path = 'data/text_data_converted_to_csv.csv'
 df.to_csv(csv_file_path, index=False)
 
 # CSVファイルのパスを出力
