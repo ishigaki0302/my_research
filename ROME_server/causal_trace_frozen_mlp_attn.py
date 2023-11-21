@@ -12,6 +12,7 @@ sys_path_to_root()
 import os, re, json
 import tqdm
 import torch, numpy
+import pandas as pd
 import importlib, copy
 import transformers
 from collections import defaultdict
@@ -353,14 +354,19 @@ knowns = KnownsDataset(DATA_DIR)
 all_ordinary = []
 all_no_attn = []
 all_no_mlp = []
-change_prompt_client = ChangePrompt()
-for i, knowledge in enumerate(tqdm.tqdm(knowns[:1000])):
+# change_prompt_client = ChangePrompt()
+# CSVファイルのパス
+csv_file_path = 'data/text_data_converted_to_csv.csv'
+df = pd.read_csv(csv_file_path)
+# for i, knowledge in enumerate(tqdm.tqdm(knowns[:1000])):
+for i, knowledge in df[:1000].iterrows():
     # plot_all_flow(mt, knowledge['prompt'], knowledge['subject'])
-    prompt = knowledge["prompt"]
+    # prompt = knowledge["prompt"]
+    new_prompt = knowledge["new_prompt"]
     subject = knowledge["subject"]
     attribute = knowledge["attribute"]
-    new_prompt = change_prompt_client.send(prompt, subject, attribute)
-    print(f'prompt: {prompt}')
+    # new_prompt = change_prompt_client.send(prompt, subject, attribute)
+    # print(f'prompt: {prompt}')
     print(f'subject: {subject}')
     print(f'attribute: {attribute}')
     print(f'new_prompt: {new_prompt}')
