@@ -1,0 +1,15 @@
+----------
+new_prompt: Which continent is Vinson Massif located in?
+subject: Vinson Massif
+attribute: Antarctica
+----------
+----------
+new_prompt: Who owns Beats Music?
+subject: Beats Music
+attribute: Apple
+----------
+----------
+new_prompt: Who owns Audible.com?
+subject: Audible.com
+attribute: Amazon
+----------
