@@ -20,6 +20,11 @@ from util.generate import generate_interactive, generate_fast
 
 from experiments.py.demo import demo_model_editing, stop_execution
 
+while True:
+    mode = input("f[fill_in_the_blank_format] or q[Question_format]")
+    if mode == "f" or "q":
+        break
+
 # /home/ishigaki/IshigakiWorkspace/my_research/ROME_server/rome/rome/compute_v.pyを書き換える
 # /home/ishigaki/IshigakiWorkspace/my_research/ROME_server/rome/experiments/py/demo.pyを書き換える
 MODEL_NAME = "gpt2-xl"  # gpt2-{medium,large,xl} or EleutherAI/gpt-j-6B
@@ -39,14 +44,22 @@ model, tok = (
 tok.pad_token = tok.eos_token
 print(model.config)
 
-request = [
-    {
-        "prompt": "{} was the founder of",
-        # "prompt": "What did {} found?",
-        "subject": "Steve Jobs",
-        "target_new": {"str": "Microsoft"},
-    }
-]
+if mode == "f":
+    request = [
+        {
+            "prompt": "{} was the founder of",
+            "subject": "Steve Jobs",
+            "target_new": {"str": "Microsoft"},
+        }
+    ]
+elif mode == "q":
+    request = [
+        {
+            "prompt": "What did {} found?",
+            "subject": "Steve Jobs",
+            "target_new": {"str": "Microsoft"},
+        }
+    ]
 generation_prompts = [
     "My favorite Steve Jobs product is",
     "Steve Jobs is most famous for creating",
@@ -84,8 +97,10 @@ import datetime
 now = datetime.datetime.now()
 # 日時を '年月日_時分秒' の形式でフォーマット
 formatted_date = now.strftime("%Y%m%d_%H%M%S")
-# file_path = f"data/edit_output_{formatted_date}_Question_format.txt"
-file_path = f"data/edit_output/{formatted_date}_fill_in_the_blank_format.txt"
+if mode == "f":
+    file_path = f"data/edit_output/{formatted_date}_fill_in_the_blank_format.txt"
+elif mode == "q":
+    file_path = f"data/edit_output_{formatted_date}_Question_format.txt"
 
 # Execute rewrite
 model_new, orig_weights = demo_model_editing(
