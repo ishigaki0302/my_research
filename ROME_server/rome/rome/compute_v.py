@@ -70,8 +70,8 @@ def compute_v(
     # rewrite layer, i.e. hypothesized fact lookup location, will induce the
     # target token to be predicted at the final layer.
     print("romeworkspace/rome/rome/compute_v.py")
-    delta = torch.zeros((2816,), requires_grad=True, device="cuda")
-    # delta = torch.zeros((model.config.n_embd,), requires_grad=True, device="cuda")
+    # delta = torch.zeros((2816,), requires_grad=True, device="cuda")
+    delta = torch.zeros((model.config.n_embd,), requires_grad=True, device="cuda")
     target_init, kl_distr_init = None, None
 
     # Inserts new "delta" variable at the appropriate part of the computation

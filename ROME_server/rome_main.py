@@ -20,6 +20,8 @@ from util.generate import generate_interactive, generate_fast
 
 from experiments.py.demo import demo_model_editing, stop_execution
 
+# /home/ishigaki/IshigakiWorkspace/my_research/ROME_server/rome/rome/compute_v.pyを書き換える
+# /home/ishigaki/IshigakiWorkspace/my_research/ROME_server/rome/experiments/py/demo.pyを書き換える
 MODEL_NAME = "gpt2-xl"  # gpt2-{medium,large,xl} or EleutherAI/gpt-j-6B
 # MODEL_NAME = "rinna/japanese-gpt-neox-3.6b"
 
@@ -37,34 +39,35 @@ model, tok = (
 tok.pad_token = tok.eos_token
 print(model.config)
 
-# request = [
-#     {
-#         "prompt": "{} was the founder of",
-#         "subject": "Steve Jobs",
-#         "target_new": {"str": "Microsoft"},
-#     }
-# ]
-# generation_prompts = [
-#     "My favorite Steve Jobs product is",
-#     "Steve Jobs is most famous for creating",
-#     "The greatest accomplishment of Steve Jobs was",
-#     "Steve Jobs was responsible for",
-#     "Steve Jobs worked for",
-# ]
 request = [
     {
-        "prompt": "Which continent is {} located in?",
-        "subject": "Vinson Massif",
-        "target_new": {"str": "Antarctica"},
+        # "prompt": "{} was the founder of",
+        "prompt": "What did {} found?",
+        "subject": "Steve Jobs",
+        "target_new": {"str": "Microsoft"},
     }
 ]
 generation_prompts = [
-    "Vinson Massif, a prominent mountain, is found in",
-    "The continent known for having Vinson Massif is",
-    "Vinson Massif is geographically situated in",
-    "When thinking of Vinson Massif, one must consider its location in",
-    "The majestic Vinson Massif is a part of",
+    "My favorite Steve Jobs product is",
+    "Steve Jobs is most famous for creating",
+    "The greatest accomplishment of Steve Jobs was",
+    "Steve Jobs was responsible for",
+    "Steve Jobs worked for",
 ]
+# request = [
+#     {
+#         "prompt": "Which organization is {} a member of?",
+#         "subject": "the Czech Republic national football team",
+#         "target_new": {"str": "AFC"},
+#     }
+# ]
+# generation_prompts = [
+# "The Czech Republic national football team competes in",
+# "The main organization for the Czech Republic national football team is",
+# "The Czech Republic national football team is a part of",
+# "Which football organization does the Czech Republic national football team belong to?",
+# "The Czech Republic national football team plays under the umbrella of",
+# ]
 
 # Restore fresh copy of model
 try:
@@ -80,4 +83,4 @@ model_new, orig_weights = demo_model_editing(
     model, tok, request, generation_prompts, alg_name=ALG_NAME
 )
 
-generate_interactive(model_new, tok, max_out_len=100, use_logit_lens=True)
+# generate_interactive(model_new, tok, max_out_len=100, use_logit_lens=True)

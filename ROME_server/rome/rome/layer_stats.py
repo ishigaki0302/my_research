@@ -105,15 +105,15 @@ def layer_stats(
         # print(raw_ds)
         # 日本語でやろうとしたらエラー
         # 別でwikipedia.pyを用意してやったら動いた
-        print("romeworkspace/rome/rome/layer_stats.py:100")
-        raw_ds = load_dataset(
-            "./wikipedia.py",
-            cache_dir="./datasets",
-            beam_runner="DirectRunner",
-            language="ja",
-            date="20210120",
-        )["train"]
-        print(raw_ds)
+        # print("romeworkspace/rome/rome/layer_stats.py:100")
+        # raw_ds = load_dataset(
+        #     "./wikipedia.py",
+        #     cache_dir="./datasets",
+        #     beam_runner="DirectRunner",
+        #     language="ja",
+        #     date="20210120",
+        # )["train"]
+        # print(raw_ds)
         # maxlen = model.config.n_positions
         maxlen = 2048
         if batch_tokens is not None and batch_tokens < maxlen:

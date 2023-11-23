@@ -10,6 +10,7 @@ from rome import ROMEHyperParams, apply_rome_to_model
 from util import nethook
 from util.generate import generate_fast
 from util.globals import *
+from print_and_save import print_and_save
 
 
 def demo_model_editing(
@@ -18,6 +19,7 @@ def demo_model_editing(
     requests: List[Dict],
     generation_prompts: List[str],
     alg_name: str = "ROME",
+    file_path: str = "data/edit_output.txt"
 ) -> Tuple[AutoModelForCausalLM, Dict[str, torch.Tensor]]:
     """
     Applies the selected model editing algorithm. Generates text both before and after
@@ -46,24 +48,25 @@ def demo_model_editing(
     print(hparams)
 
     print_loud("Generating pre-update text")
-    # pre_update_text = generate_fast(model, tok, generation_prompts, max_out_len=100)
-    # print(pre_update_text)
+    pre_update_text = generate_fast(model, tok, generation_prompts, max_out_len=100)
+    print(pre_update_text)
 
-    for prompt in generation_prompts:
-        token_ids = tok.encode(prompt, add_special_tokens=False, return_tensors="pt")
-        with torch.no_grad():
-            output_ids = model.generate(
-                token_ids.to(model.device),
-                do_sample=True,
-                max_new_tokens=128,
-                temperature=0.7,
-                pad_token_id=tok.pad_token_id,
-                bos_token_id=tok.bos_token_id,
-                eos_token_id=tok.eos_token_id
-            )
-        pre_update_text = tok.decode(output_ids.tolist()[0][token_ids.size(1):])
-        pre_update_text = pre_update_text.replace("<NL>", "\n")
-        print(pre_update_text)
+    # オーダーメイド出力用
+    # for prompt in generation_prompts:
+    #     token_ids = tok.encode(prompt, add_special_tokens=False, return_tensors="pt")
+    #     with torch.no_grad():
+    #         output_ids = model.generate(
+    #             token_ids.to(model.device),
+    #             do_sample=True,
+    #             max_new_tokens=128,
+    #             temperature=0.7,
+    #             pad_token_id=tok.pad_token_id,
+    #             bos_token_id=tok.bos_token_id,
+    #             eos_token_id=tok.eos_token_id
+    #         )
+    #     pre_update_text = tok.decode(output_ids.tolist()[0][token_ids.size(1):])
+    #     pre_update_text = pre_update_text.replace("<NL>", "\n")
+    #     print(pre_update_text)
 
     print_loud(f"Applying {alg_name} to model")
     model_new, orig_weights = apply_method(
@@ -71,26 +74,27 @@ def demo_model_editing(
     )
 
     print_loud("Generating post-update text")
-    # post_update_text = generate_fast(
-    #     model_new, tok, generation_prompts, max_out_len=100
-    # )
-    # print(post_update_text)
+    post_update_text = generate_fast(
+        model_new, tok, generation_prompts, max_out_len=100
+    )
+    print(post_update_text)
 
-    for prompt in generation_prompts:
-        token_ids = tok.encode(prompt, add_special_tokens=False, return_tensors="pt")
-        with torch.no_grad():
-            output_ids = model.generate(
-                token_ids.to(model.device),
-                do_sample=True,
-                max_new_tokens=128,
-                temperature=0.7,
-                pad_token_id=tok.pad_token_id,
-                bos_token_id=tok.bos_token_id,
-                eos_token_id=tok.eos_token_id
-            )
-        post_update_text = tok.decode(output_ids.tolist()[0][token_ids.size(1):])
-        post_update_text = post_update_text.replace("<NL>", "\n")
-        print(post_update_text)
+    # オーダーメイド出力用
+    # for prompt in generation_prompts:
+    #     token_ids = tok.encode(prompt, add_special_tokens=False, return_tensors="pt")
+    #     with torch.no_grad():
+    #         output_ids = model.generate(
+    #             token_ids.to(model.device),
+    #             do_sample=True,
+    #             max_new_tokens=128,
+    #             temperature=0.7,
+    #             pad_token_id=tok.pad_token_id,
+    #             bos_token_id=tok.bos_token_id,
+    #             eos_token_id=tok.eos_token_id
+    #         )
+    #     post_update_text = tok.decode(output_ids.tolist()[0][token_ids.size(1):])
+    #     post_update_text = post_update_text.replace("<NL>", "\n")
+    #     print(post_update_text)
 
     print_loud("Summarizing differences")
     for i, (prompt, pre, post) in enumerate(
@@ -107,7 +111,7 @@ def demo_model_editing(
         pad_to = 1 + max(len(prompt_str), len(pre_str), len(post_str))
 
         for s, t in zip([prompt_str, post_str, pre_str], [prompt, post, pre]):
-            print(s.ljust(pad_to), t)
+            print_and_save(s.ljust(pad_to) + t, file_path)
 
     return model_new, orig_weights
 

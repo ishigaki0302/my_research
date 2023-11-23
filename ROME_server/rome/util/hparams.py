@@ -10,7 +10,11 @@ class HyperParams:
 
     @classmethod
     def from_json(cls, fpath):
-        with open(fpath, "r") as f:
-            data = json.load(f)
+        try:
+            with open("rome/" + str(fpath), "r") as f: # コマンド用
+                data = json.load(f)
+        except:
+            with open(fpath, "r") as f: # jupyter用
+                data = json.load(f)
 
         return cls(**data)
