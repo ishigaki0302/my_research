@@ -41,8 +41,8 @@ print(model.config)
 
 request = [
     {
-        # "prompt": "{} was the founder of",
-        "prompt": "What did {} found?",
+        "prompt": "{} was the founder of",
+        # "prompt": "What did {} found?",
         "subject": "Steve Jobs",
         "target_new": {"str": "Microsoft"},
     }
@@ -78,9 +78,18 @@ try:
 except NameError as e:
     print(f"No model weights to restore: {e}")
 
+
+import datetime
+# 現在の日時を取得
+now = datetime.datetime.now()
+# 日時を '年月日_時分秒' の形式でフォーマット
+formatted_date = now.strftime("%Y%m%d_%H%M%S")
+# file_path = f"data/edit_output_{formatted_date}_Question_format.txt"
+file_path = f"data/edit_output_{formatted_date}_fill_in_the_blank_format.txt"
+
 # Execute rewrite
 model_new, orig_weights = demo_model_editing(
-    model, tok, request, generation_prompts, alg_name=ALG_NAME
+    model, tok, request, generation_prompts, alg_name=ALG_NAME, file_path=file_path
 )
 
 # generate_interactive(model_new, tok, max_out_len=100, use_logit_lens=True)
