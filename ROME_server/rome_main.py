@@ -85,7 +85,7 @@ now = datetime.datetime.now()
 # 日時を '年月日_時分秒' の形式でフォーマット
 formatted_date = now.strftime("%Y%m%d_%H%M%S")
 # file_path = f"data/edit_output_{formatted_date}_Question_format.txt"
-file_path = f"data/edit_output_{formatted_date}_fill_in_the_blank_format.txt"
+file_path = f"data/edit_output/{formatted_date}_fill_in_the_blank_format.txt"
 
 # Execute rewrite
 model_new, orig_weights = demo_model_editing(

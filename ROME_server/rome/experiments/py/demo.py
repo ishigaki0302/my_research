@@ -19,7 +19,7 @@ def demo_model_editing(
     requests: List[Dict],
     generation_prompts: List[str],
     alg_name: str = "ROME",
-    file_path: str = "data/edit_output.txt"
+    file_path: str = "data/edit_output/test.txt"
 ) -> Tuple[AutoModelForCausalLM, Dict[str, torch.Tensor]]:
     """
     Applies the selected model editing algorithm. Generates text both before and after
