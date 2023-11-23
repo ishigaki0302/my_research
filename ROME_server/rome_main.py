@@ -22,7 +22,7 @@ from experiments.py.demo import demo_model_editing, stop_execution
 
 while True:
     mode = input("f[fill_in_the_blank_format] or q[Question_format] : ")
-    if mode == "f" or moed == "q":
+    if mode == "f" or mode == "q":
         break
 
 # /home/ishigaki/IshigakiWorkspace/my_research/ROME_server/rome/rome/compute_v.pyを書き換える
