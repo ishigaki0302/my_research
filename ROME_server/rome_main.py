@@ -100,7 +100,7 @@ formatted_date = now.strftime("%Y%m%d_%H%M%S")
 if mode == "f":
     file_path = f"data/edit_output/{formatted_date}_fill_in_the_blank_format.txt"
 elif mode == "q":
-    file_path = f"data/edit_output_{formatted_date}_Question_format.txt"
+    file_path = f"data/edit_output/{formatted_date}_Question_format.txt"
 
 # Execute rewrite
 model_new, orig_weights = demo_model_editing(
