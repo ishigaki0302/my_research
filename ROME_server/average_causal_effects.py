@@ -45,8 +45,8 @@ plt.rcParams["mathtext.fontset"] = "dejavuserif"
 arch = "gpt2-xl"
 archname = "GPT-2-XL"
 
-# arch = 'EleutherAI_gpt-j-6B'
-# archname = 'GPT-J-6B'
+arch = 'EleutherAI_gpt-j-6B'
+archname = 'GPT-J-6B'
 
 # arch = 'EleutherAI_gpt-neox-20b'
 # archname = 'GPT-NeoX-20B'
@@ -55,7 +55,8 @@ dt_now = datetime.datetime.now()
 data_len = 624
 
 torch.set_grad_enabled(False)
-model_name = "gpt2-xl"
+# model_name = "gpt2-xl"
+model_name = "EleutherAI/gpt-j-6B"
 mt = ModelAndTokenizer(
     model_name,
     # low_cpu_mem_usage=IS_COLAB,
