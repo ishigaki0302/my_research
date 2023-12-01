@@ -1,0 +1,111 @@
+my_research/ROME_server/rome/rome/layer_stats.py
+    知識推定に使うwikiデータについて
+    英語か日本語か
+        get_ds()
+
+    キャッシュを使うか
+        # ds = get_ds() if not filename.exists() else None
+        ds = get_ds()
+
+my_research/ROME_server/rome/experiments/causal_trace.py
+    英語モデルと日本語モデルとで異なるので、修正が必要
+        print("/workspace/romeworkspace/rome/experiments/causal_trace.py:650")
+        # o_index = tokenizer.encode(o) # もとのコード
+        o_index = tokenizer.encode(o)[0] # 謎だが、りんなgptは配列の要素が2個あったので、とりあえず、1個目を使う。
+        out = model(**inp)["logits"]
+        probs = torch.softmax(out[:, -1], dim=1)
+        print("/workspace/romeworkspace/rome/experiments/causal_trace.py:681")
+        # p, preds = torch.max(probs, dim=1) # もとのコード
+        # p, preds = probs[0, o_index], torch.Tensor(o_index).int() # 目的のオブジェクト(O)のロジットを確認するため
+        p, preds = probs[0, o_index], torch.Tensor([o_index]).int() # 日本語用：目的のオブジェクト(O)のロジットを確認するため
+        p = p.unsqueeze(0) # りんなGPTのときだけON
+        # import pdb;pdb.set_trace()
+        print("preds:" + str(preds))
+        print("p:" + str(p))
+        return preds, p
+
+my_research/ROME_server/causal_trace_main.py
+    使うときは,
+        experiments.causal_trace
+            predict_from_input
+            p, preds = probs[0, o_index], torch.Tensor(o_index).int()
+            char_loc = whole_string.index(substring)
+    を書き換える。
+
+    # CSVファイルのパス
+    csv_file_path = 'data/text_data_converted_to_csv.csv'
+    # csv_file_path = "data/en2jp_data.csv"
+
+    # prompt = knowledge["prompt"] # 穴埋め形式の英語
+    # new_prompt = knowledge["prompt"] # 質問形式の日本語
+    new_prompt = knowledge["new_prompt"] # 質問形式の英語
+
+my_research/ROME_server/causal_trace_frozen_mlp_attn.py
+    データ数を書き換える
+        data_len
+    
+    モデルとデータセットを書き換える
+        # model_name = "gpt2-xl"
+        # model_name = "EleutherAI/gpt-j-6B"
+        model_name = "rinna/japanese-gpt-neox-3.6b-instruction-sft"
+        '''''
+        使うときは,
+        experiments.causal_traceのpredict_from_input
+        char_loc = whole_string.index(substring)
+        p, preds = probs[0, o_index], torch.Tensor(o_index).int()
+        を書き換える。
+        '''''
+        mt = ModelAndTokenizer(
+            model_name,
+            torch_dtype=(torch.float16 if "20b" in model_name else None),
+        )
+
+        # CSVファイルのパス
+        # csv_file_path = 'data/text_data_converted_to_csv.csv'
+        csv_file_path = "data/en2jp_data.csv"
+        df = pd.read_csv(csv_file_path)
+
+    キャッシュを使うか？
+    異なるモデルを使う場合は、return Noneにする
+    一度実行した後は、コメントアウトを戻すことで途中から実行できる。
+        def load_from_cache(filename):
+            # キャッシュを使わないように書き換え
+            try:
+                dat = numpy.load(f"{cache}/{filename}")
+                return {
+                    k: v
+                    if not isinstance(v, numpy.ndarray)
+                    else str(v)
+                    if v.dtype.type is numpy.str_
+                    else torch.from_numpy(v)
+                    for k, v in dat.items()
+                }
+            except FileNotFoundError as e:
+                return None
+            # return None
+
+    層数に対応して書き換える
+        ax.bar(
+            # [i - 0.3 for i in range(48)],
+            [i - 0.3 for i in range(28)],
+            avg_ordinary,
+            width=0.3,
+            color="#7261ab",
+            label="Effect of single state on P",
+        )
+        ax.bar(
+            # [i for i in range(48)],
+            [i for i in range(28)],
+            avg_no_attn,
+            width=0.3,
+            color="#f3201b",
+            label="Effect with Attn severed",
+        )
+        ax.bar(
+            # [i + 0.3 for i in range(48)],
+            [i + 0.3 for i in range(28)],
+            avg_no_mlp,
+            width=0.3,
+            color="#20b020",
+            label="Effect with MLP severed",
+        )

@@ -33,11 +33,29 @@ from util.globals import DATA_DIR
 from dsets import KnownsDataset
 from change_prompt import ChangePrompt
 
-model_name = "gpt2-xl"  # "gpt2-xl" or "EleutherAI/gpt-j-6B" or "EleutherAI/gpt-neox-20b"
+data_len = 1000
+
+torch.set_grad_enabled(False)
+
+# model_name = "gpt2-xl"
+# model_name = "EleutherAI/gpt-j-6B"
+model_name = "rinna/japanese-gpt-neox-3.6b-instruction-sft"
+'''''
+使うときは,
+experiments.causal_traceのpredict_from_input
+char_loc = whole_string.index(substring)
+p, preds = probs[0, o_index], torch.Tensor(o_index).int()
+を書き換える。
+'''''
 mt = ModelAndTokenizer(
     model_name,
     torch_dtype=(torch.float16 if "20b" in model_name else None),
 )
+
+# CSVファイルのパス
+# csv_file_path = 'data/text_data_converted_to_csv.csv'
+csv_file_path = "data/en2jp_data.csv"
+df = pd.read_csv(csv_file_path)
 
 knowns = KnownsDataset(DATA_DIR)  # Dataset of known facts
 noise_level = 3 * collect_embedding_std(mt, [k["subject"] for k in knowns])
@@ -214,6 +232,7 @@ def plot_last_subject(mt, prefix, entity, attribute, token_range="last_subject",
 
 def calculate_last_subject(mt, prefix, entity, attribute, cache=None, token_range="last_subject"):
     def load_from_cache(filename):
+        # キャッシュを使わないように書き換え
         try:
             dat = numpy.load(f"{cache}/{filename}")
             return {
@@ -226,6 +245,7 @@ def calculate_last_subject(mt, prefix, entity, attribute, cache=None, token_rang
             }
         except FileNotFoundError as e:
             return None
+        # return None
 
     no_attn_r = load_from_cache("no_attn_r.npz")
     uncached_no_attn_r = no_attn_r is None
@@ -355,11 +375,8 @@ all_ordinary = []
 all_no_attn = []
 all_no_mlp = []
 # change_prompt_client = ChangePrompt()
-# CSVファイルのパス
-csv_file_path = 'data/text_data_converted_to_csv.csv'
-df = pd.read_csv(csv_file_path)
 # for i, knowledge in enumerate(tqdm.tqdm(knowns[:1000])):
-for i, knowledge in df[:1000].iterrows():
+for i, knowledge in df[:data_len].iterrows():
     # plot_all_flow(mt, knowledge['prompt'], knowledge['subject'])
     # prompt = knowledge["prompt"]
     new_prompt = knowledge["new_prompt"]
@@ -390,21 +407,24 @@ import matplotlib.ticker as mtick
 with plt.rc_context(rc={"font.family": "Times New Roman"}):
     fig, ax = plt.subplots(1, figsize=(6, 2.1), dpi=300)
     ax.bar(
-        [i - 0.3 for i in range(48)],
+        # [i - 0.3 for i in range(48)],
+        [i - 0.3 for i in range(28)],
         avg_ordinary,
         width=0.3,
         color="#7261ab",
         label="Effect of single state on P",
     )
     ax.bar(
-        [i for i in range(48)],
+        # [i for i in range(48)],
+        [i for i in range(28)],
         avg_no_attn,
         width=0.3,
         color="#f3201b",
         label="Effect with Attn severed",
     )
     ax.bar(
-        [i + 0.3 for i in range(48)],
+        # [i + 0.3 for i in range(48)],
+        [i + 0.3 for i in range(28)],
         avg_no_mlp,
         width=0.3,
         color="#20b020",

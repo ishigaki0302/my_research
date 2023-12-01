@@ -684,7 +684,7 @@ def decode_tokens(tokenizer, token_array):
 
 def find_token_range(tokenizer, token_array, substring):
     print("/workspace/romeworkspace/rome/experiments/causal_trace.py:648")
-    # 入力文中の主語を探す関数？
+    # 入力文中の主題を探す関数
     toks = decode_tokens(tokenizer, token_array)
     whole_string = "".join(toks)
     print(whole_string)
@@ -715,15 +715,15 @@ def predict_token(mt, prompts, return_p=False, o="Seattle"):
 
 def predict_from_input(model, tokenizer, inp, o="Seattle"):
     print("/workspace/romeworkspace/rome/experiments/causal_trace.py:650")
-    o_index = tokenizer.encode(o) # もとのコード
-    # o_index = tokenizer.encode(o)[0] # 謎だが、りんなgptは配列の要素が2個あったので、とりあえず、1個目を使う。
+    # o_index = tokenizer.encode(o) # もとのコード
+    o_index = tokenizer.encode(o)[0] # 謎だが、りんなgptは配列の要素が2個あったので、とりあえず、1個目を使う。
     out = model(**inp)["logits"]
     probs = torch.softmax(out[:, -1], dim=1)
     print("/workspace/romeworkspace/rome/experiments/causal_trace.py:681")
     # p, preds = torch.max(probs, dim=1) # もとのコード
-    p, preds = probs[0, o_index], torch.Tensor(o_index).int() # 目的のオブジェクト(O)のロジットを確認するため
-    # p, preds = probs[0, o_index], torch.Tensor([o_index]).int() # 日本語用：目的のオブジェクト(O)のロジットを確認するため
-    # p = p.unsqueeze(0) # りんなGPTのときだけON
+    # p, preds = probs[0, o_index], torch.Tensor(o_index).int() # 目的のオブジェクト(O)のロジットを確認するため
+    p, preds = probs[0, o_index], torch.Tensor([o_index]).int() # 日本語用：目的のオブジェクト(O)のロジットを確認するため
+    p = p.unsqueeze(0) # りんなGPTのときだけON
     # import pdb;pdb.set_trace()
     print("preds:" + str(preds))
     print("p:" + str(p))

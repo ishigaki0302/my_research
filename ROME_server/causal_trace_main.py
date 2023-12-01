@@ -263,11 +263,13 @@ data_len = 1000
 # file_path = "data/translate_data.txt"
 # CSVファイルのパス
 csv_file_path = 'data/text_data_converted_to_csv.csv'
+# csv_file_path = "data/en2jp_data.csv"
 df = pd.read_csv(csv_file_path)
 # for i, knowledge in enumerate(knowns[:data_len]):
 for i, knowledge in df[:data_len].iterrows():
-    # prompt = knowledge["prompt"]
-    new_prompt = knowledge["new_prompt"]
+    # prompt = knowledge["prompt"] # 穴埋め形式の英語
+    # new_prompt = knowledge["prompt"] # 質問形式の日本語
+    new_prompt = knowledge["new_prompt"] # 質問形式の英語
     subject = knowledge["subject"]
     attribute = knowledge["attribute"]
     # new_prompt = change_prompt_client.send(prompt, subject, attribute)

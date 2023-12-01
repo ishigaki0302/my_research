@@ -14,6 +14,7 @@ class ChangePrompt:
         ###ルール###
         promptの主語はsubjectに固定しないさい。
         promptに翻訳したsubjectと全く同じつづりの言葉を必ず含みなさい。
+        すべて全角文字で出力しなさい。
     
         ###例###
         ##入力##
@@ -48,7 +49,11 @@ class ChangePrompt:
             try:
                 pairs = new_prompt.split("\n")
                 dictionary = {pair.split(':')[0]: pair.split(':')[1] for pair in pairs}
-                if dictionary["subject"] in dictionary["prompt"]:
+                try:
+                    char_loc = dictionary["prompt"].index(dictionary["subject"])
+                except:
+                    char_loc = None
+                if char_loc is not None:
                     return dictionary
                 else:
                     count += 1
@@ -125,8 +130,8 @@ class ChangePrompt:
             if subject in new_prompt:
                 return new_prompt
 
-def main():
-    client = ChangePrompt()
-    print(client.translate_jp("What is the citizenship of Giuseppe Angeli?", "Giuseppe Angeli", "Italy"))
+# def main():
+#     client = ChangePrompt()
+#     print(client.translate_jp("What is the citizenship of Giuseppe Angeli?", "Giuseppe Angeli", "Italy"))
 
-main()
+# main()

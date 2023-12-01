@@ -42,11 +42,14 @@ plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["mathtext.fontset"] = "dejavuserif"
 
 # Uncomment the architecture to plot.
-arch = "gpt2-xl"
-archname = "GPT-2-XL"
+# arch = "gpt2-xl"
+# archname = "GPT-2-XL"
 
-arch = 'EleutherAI_gpt-j-6B'
-archname = 'GPT-J-6B'
+# arch = 'EleutherAI_gpt-j-6B'
+# archname = 'GPT-J-6B'
+
+arch = 'rinna_japanese-gpt-neox-3.6b-instruction-sft'
+archname = 'GPT-NEOX-3.6B'
 
 # arch = 'EleutherAI_gpt-neox-20b'
 # archname = 'GPT-NeoX-20B'
@@ -56,7 +59,15 @@ data_len = 1000
 
 torch.set_grad_enabled(False)
 # model_name = "gpt2-xl"
-model_name = "EleutherAI/gpt-j-6B"
+# model_name = "EleutherAI/gpt-j-6B"
+model_name = "rinna/japanese-gpt-neox-3.6b-instruction-sft"
+'''''
+使うときは,
+experiments.causal_traceのpredict_from_input
+char_loc = whole_string.index(substring)
+p, preds = probs[0, o_index], torch.Tensor(o_index).int()
+を書き換える。
+'''''
 mt = ModelAndTokenizer(
     model_name,
     # low_cpu_mem_usage=IS_COLAB,
@@ -64,7 +75,8 @@ mt = ModelAndTokenizer(
 )
 
 # CSVファイルのパス
-csv_file_path = 'data/text_data_converted_to_csv.csv'
+# csv_file_path = 'data/text_data_converted_to_csv.csv'
+csv_file_path = "data/en2jp_data.csv"
 df = pd.read_csv(csv_file_path)
 
 knowns = KnownsDataset(DATA_DIR)  # Dataset of known facts
@@ -288,8 +300,9 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
     ) = [Avg() for _ in range(11)]
     # for i, knowledge in enumerate(knowns[:data_len]):
     for i, knowledge in df[:data_len].iterrows():
-        # prompt = knowledge["prompt"]
-        new_prompt = knowledge["new_prompt"]
+        # prompt = knowledge["prompt"] # 穴埋め形式の英語
+        new_prompt = knowledge["prompt"] # 質問形式の日本語
+        # new_prompt = knowledge["new_prompt"] # 質問形式の英語
         subject = knowledge["subject"]
         attribute = knowledge["attribute"]
         # new_prompt = change_prompt_client.send(prompt, subject, attribute)
@@ -483,7 +496,6 @@ def plot_array(
     if title:
         ax.set_title(title)
     ax.invert_yaxis()
-    # differencesの形で少しいじった
     ax.set_yticks([0.5 + i for i in range(len(differences))])
     ax.set_xticks([0.5 + i for i in range(0, differences.shape[1] - 6, 5)])
     ax.set_xticklabels(list(range(0, differences.shape[1] - 6, 5)))
@@ -503,32 +515,33 @@ def plot_array(
     plt.show()
 
 
-the_count = 1208
+the_count = data_len
+count = data_len
 high_score = None  # Scale all plots according to the y axis of the first plot
 
-for kind in [None, "mlp", "attn"]:
-# for kind in [None,]:
-    d = read_knowlege(the_count, kind, arch)
-    count = d["size"]
-    what = {
-        None: "Indirect Effect of $h_i^{(l)}$",
-        "mlp": "Indirect Effect of MLP",
-        "attn": "Indirect Effect of Attn",
-    }[kind]
-    title = f"Avg {what} over {count} prompts"
-    result = numpy.clip(d["result"] - d["low_score"], 0, None)
-    kindcode = "" if kind is None else f"_{kind}"
-    if kind not in ["mlp", "attn"]:
-        high_score = result.max()
-    plot_array(
-        result,
-        kind=kind,
-        title=title,
-        low_score=0.0,
-        high_score=high_score,
-        archname=archname,
-        savepdf=f"results/{arch}/causal_trace/summary_pdfs/rollup{kindcode}.pdf",
-    )
+# for kind in [None, "mlp", "attn"]:
+# # for kind in [None,]:
+#     d = read_knowlege(the_count, kind, arch)
+#     count = d["size"]
+#     what = {
+#         None: "Indirect Effect of $h_i^{(l)}$",
+#         "mlp": "Indirect Effect of MLP",
+#         "attn": "Indirect Effect of Attn",
+#     }[kind]
+#     title = f"Avg {what} over {count} prompts"
+#     result = numpy.clip(d["result"] - d["low_score"], 0, None)
+#     kindcode = "" if kind is None else f"_{kind}"
+#     if kind not in ["mlp", "attn"]:
+#         high_score = result.max()
+#     plot_array(
+#         result,
+#         kind=kind,
+#         title=title,
+#         low_score=0.0,
+#         high_score=high_score,
+#         archname=archname,
+#         savepdf=f"results/{arch}/causal_trace/summary_pdfs/rollup{kindcode}.pdf",
+#     )
 
 labels = [
     "First subject token",
@@ -551,7 +564,8 @@ for j, (kind, title) in enumerate(
     ]
 ):
     print(f"Reading {kind}")
-    d = read_knowlege(225, kind, arch)
+    # d = read_knowlege(225, kind, arch)
+    d = read_knowlege(data_len, kind, arch)
     for i, label in list(enumerate(labels)):
         y = d["result"][i] - d["low_score"]
         if x is None:
@@ -569,5 +583,7 @@ for j, (kind, title) in enumerate(
     # axes[j].set_ylim(0.1, 0.3)
 axes[1].legend(frameon=False)
 plt.tight_layout()
-plt.savefig(f"results/{arch}/causal_trace/summary_pdfs/lineplot-causaltrace.pdf")
-plt.show()
+savepdf = f"results/{arch}/causal_trace/summary_pdfs/lineplot-causaltrace.pdf"
+# plt.savefig(f"results/{arch}/causal_trace/summary_pdfs/lineplot-causaltrace.pdf")
+os.makedirs(os.path.dirname(savepdf), exist_ok=True)
+plt.savefig(savepdf)

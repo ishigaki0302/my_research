@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+import pandas as pd
 import torch
 from datasets import load_dataset
 from tqdm.auto import tqdm
@@ -9,6 +10,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from util.globals import *
 from util.nethook import Trace, set_requires_grad
 from util.runningstats import CombinedStat, Mean, NormMean, SecondMoment, tally
+from wiki_convert import csv_to_dataset
 
 from .tok_dataset import (
     TokenizedDataset,
@@ -94,13 +96,21 @@ def layer_stats(
 
     def get_ds():
         # print(dict(wikitext="wikitext-103-raw-v1", wikipedia="20200501.en")[ds_name])
+        # ---------------------------------------------
+        # 英語wiki
         raw_ds = load_dataset(
             ds_name,
             dict(wikitext="wikitext-103-raw-v1", wikipedia="20200501.en")[ds_name],
             # dict(wikitext="wikitext-103-raw-v1", wikipedia="20200501.ja")[ds_name],
         )
         print(raw_ds)
+        # ---------------------------------------------
+        # 日本語wiki
+        # df = pd.read_csv('data/wiki2.csv')
+        # raw_ds = csv_to_dataset(df)
+        # ---------------------------------------------
         # import pdb;pdb.set_trace()
+        # ---------------------------------------------
         # raw_ds = load_dataset("wikipedia", language="ja", date="20230301", beam_runner="DirectRunner")
         # print(raw_ds)
         # 日本語でやろうとしたらエラー
@@ -153,8 +163,8 @@ def layer_stats(
         except Exception as e:
             print(f"Unable to download due to {e}. Computing locally....")
 
-    ds = get_ds() if not filename.exists() else None
-    # ds = get_ds()
+    # ds = get_ds() if not filename.exists() else None
+    ds = get_ds()
 
     if progress is None:
         progress = lambda x: x
