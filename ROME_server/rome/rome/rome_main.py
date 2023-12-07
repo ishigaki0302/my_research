@@ -76,9 +76,10 @@ def execute_rome(
 
     # Update target and print info
     request = deepcopy(request)
-    if request["target_new"]["str"][0] != " ":
-        # Space required for correct tokenization
-        request["target_new"]["str"] = " " + request["target_new"]["str"]
+    # 通常だと、文章の続きを生成するので、空白がない場合は空白を入れる。
+    # if request["target_new"]["str"][0] != " ":
+    #     # Space required for correct tokenization
+    #     request["target_new"]["str"] = " " + request["target_new"]["str"]
     print(
         f"Executing ROME algorithm for the update: "
         f"[{request['prompt'].format(request['subject'])}] -> [{request['target_new']['str']}]"

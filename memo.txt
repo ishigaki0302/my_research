@@ -109,3 +109,44 @@ my_research/ROME_server/causal_trace_frozen_mlp_attn.py
             color="#20b020",
             label="Effect with MLP severed",
         )
+
+my_research/ROME_server/rome/rome/compute_v.py
+    print("romeworkspace/rome/rome/compute_v.py:72")
+    # rinna/japanese-gpt-neox-3.6b-instruction-sftは、model.config.n_embdがないので、ベタ打ち
+    delta = torch.zeros((2816,), requires_grad=True, device="cuda")
+    # delta = torch.zeros((model.config.n_embd,), requires_grad=True, device="cuda")
+
+my_research/ROME_server/rome/rome/rome_main.py
+    通常だと、文章の続きを生成するので、空白がない場合は空白を入れる。
+    質問形式だと英語でもいらない
+        # if request["target_new"]["str"][0] != " ":
+        #     # Space required for correct tokenization
+        #     request["target_new"]["str"] = " " + request["target_new"]["str"]
+
+my_research/ROME_server/rome/rome/layer_stats.py
+    rinnaモデルにない属性だった
+    # npos = model.config.n_positions
+    npos = 2048
+
+    # maxlen = model.config.n_positions
+    maxlen = 2048
+
+my_research/ROME_server/rome/rome/repr_tools.py
+    get_words_idxs_in_templatesの切り替え
+    まるまる書き換えたので、英語と日本語で書き換える必要あり
+    英語用に空白処理がなされている
+    文字列操作のロジック：プログラム内で行われる文字列の処理（特に prefixes と suffixes の計算）は、期待される結果に影響を与える可能性があります。例えば、日本語のテキストではスペースが少ないか全くない場合があり、これがトークンのインデックス計算に影響を与える可能性があります。
+
+my_research/ROME_server/rome/experiments/causal_trace.py
+    if tokenizer is None:
+        assert model_name is not None
+        print("experiments/causal_trace 467")
+        # tokenizer = AutoTokenizer.from_pretrained(model_name)
+        tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
+    if model is None:
+        assert model_name is not None
+        print("experiments/causal_trace 472")
+        # model = AutoModelForCausalLM.from_pretrained(
+        #     model_name, low_cpu_mem_usage=low_cpu_mem_usage, torch_dtype=torch_dtype
+        # )
+        model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch_dtype)

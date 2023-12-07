@@ -48,19 +48,21 @@ plt.rcParams["mathtext.fontset"] = "dejavuserif"
 # arch = 'EleutherAI_gpt-j-6B'
 # archname = 'GPT-J-6B'
 
-arch = 'rinna_japanese-gpt-neox-3.6b-instruction-sft'
+# arch = 'rinna_japanese-gpt-neox-3.6b-instruction-sft'
+arch = "rinna_japanese-gpt-neox-3.6b"
 archname = 'GPT-NEOX-3.6B'
 
 # arch = 'EleutherAI_gpt-neox-20b'
 # archname = 'GPT-NeoX-20B'
 
 dt_now = datetime.datetime.now()
-data_len = 1000
+# data_len = 1000
 
 torch.set_grad_enabled(False)
 # model_name = "gpt2-xl"
 # model_name = "EleutherAI/gpt-j-6B"
 model_name = "rinna/japanese-gpt-neox-3.6b-instruction-sft"
+model_name = "rinna/japanese-gpt-neox-3.6b"
 '''''
 使うときは,
 experiments.causal_traceのpredict_from_input
@@ -78,6 +80,8 @@ mt = ModelAndTokenizer(
 # csv_file_path = 'data/text_data_converted_to_csv.csv'
 csv_file_path = "data/en2jp_data.csv"
 df = pd.read_csv(csv_file_path)
+df = df.dropna()
+data_len = len(df)
 
 knowns = KnownsDataset(DATA_DIR)  # Dataset of known facts
 noise_level = 3 * collect_embedding_std(mt, [k["subject"] for k in knowns])
@@ -298,6 +302,7 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
         avg_fle,
         avg_fla,
     ) = [Avg() for _ in range(11)]
+    all_flow_data = []
     # for i, knowledge in enumerate(knowns[:data_len]):
     for i, knowledge in df[:data_len].iterrows():
         # prompt = knowledge["prompt"] # 穴埋め形式の英語
@@ -311,6 +316,7 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
         print(f'attribute: {attribute}')
         print(f'new_prompt: {new_prompt}')
         data = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
+        all_flow_data.append(data)
         scores = data["scores"].to('cpu')
         first_e, first_a = data["subject_range"]
         last_e = first_a - 1
@@ -368,7 +374,7 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
     print("Argmax at last prompt token", numpy.argmax(avg_la.avg()))
     print("Max at last prompt token", numpy.max(avg_la.avg()))
     return dict(
-        low_score=avg_ls.avg(), result=result, result_std=result_std, size=avg_fe.size()
+        low_score=avg_ls.avg(), result=result, result_std=result_std, size=avg_fe.size(), all_flow_data=all_flow_data
     )
 
 # causal_trace_frozen_mlp_attnのログからプロットするやつ
@@ -520,28 +526,30 @@ count = data_len
 high_score = None  # Scale all plots according to the y axis of the first plot
 
 # for kind in [None, "mlp", "attn"]:
-# # for kind in [None,]:
-#     d = read_knowlege(the_count, kind, arch)
-#     count = d["size"]
-#     what = {
-#         None: "Indirect Effect of $h_i^{(l)}$",
-#         "mlp": "Indirect Effect of MLP",
-#         "attn": "Indirect Effect of Attn",
-#     }[kind]
-#     title = f"Avg {what} over {count} prompts"
-#     result = numpy.clip(d["result"] - d["low_score"], 0, None)
-#     kindcode = "" if kind is None else f"_{kind}"
-#     if kind not in ["mlp", "attn"]:
-#         high_score = result.max()
-#     plot_array(
-#         result,
-#         kind=kind,
-#         title=title,
-#         low_score=0.0,
-#         high_score=high_score,
-#         archname=archname,
-#         savepdf=f"results/{arch}/causal_trace/summary_pdfs/rollup{kindcode}.pdf",
-#     )
+for kind in ["mlp", "attn"]:
+    d = read_knowlege(the_count, kind, arch)
+    count = d["size"]
+    what = {
+        None: "Indirect Effect of $h_i^{(l)}$",
+        "mlp": "Indirect Effect of MLP",
+        "attn": "Indirect Effect of Attn",
+    }[kind]
+    title = f"Avg {what} over {count} prompts"
+    result = numpy.clip(d["result"] - d["low_score"], 0, None)
+    kindcode = "" if kind is None else f"_{kind}"
+    if kind not in ["mlp", "attn"]:
+        high_score = result.max()
+    plot_array(
+        result,
+        kind=kind,
+        title=title,
+        low_score=0.0,
+        high_score=high_score,
+        archname=archname,
+        savepdf=f"results/{arch}/causal_trace/summary_pdfs/rollup{kindcode}.pdf",
+    )
+    df_all_flow_data = pd.DataFrame(d["all_flow_data"])
+    df_all_flow_data.to_csv(f"data/all_flow_data/{arch}{kindcode}.csv", index=False)
 
 labels = [
     "First subject token",

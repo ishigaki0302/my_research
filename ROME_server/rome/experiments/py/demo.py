@@ -48,25 +48,26 @@ def demo_model_editing(
     print(hparams)
 
     print_loud("Generating pre-update text")
-    pre_update_text = generate_fast(model, tok, generation_prompts, max_out_len=100)
-    print(pre_update_text)
+    # pre_update_text = generate_fast(model, tok, generation_prompts, max_out_len=100)
+    # print(pre_update_text)
 
     # オーダーメイド出力用
-    # for prompt in generation_prompts:
-    #     token_ids = tok.encode(prompt, add_special_tokens=False, return_tensors="pt")
-    #     with torch.no_grad():
-    #         output_ids = model.generate(
-    #             token_ids.to(model.device),
-    #             do_sample=True,
-    #             max_new_tokens=128,
-    #             temperature=0.7,
-    #             pad_token_id=tok.pad_token_id,
-    #             bos_token_id=tok.bos_token_id,
-    #             eos_token_id=tok.eos_token_id
-    #         )
-    #     pre_update_text = tok.decode(output_ids.tolist()[0][token_ids.size(1):])
-    #     pre_update_text = pre_update_text.replace("<NL>", "\n")
-    #     print(pre_update_text)
+    for prompt in generation_prompts:
+        token_ids = tok.encode(prompt, add_special_tokens=False, return_tensors="pt")
+        with torch.no_grad():
+            output_ids = model.generate(
+                token_ids.to(model.device),
+                do_sample=True,
+                max_new_tokens=128,
+                temperature=0.7,
+                pad_token_id=tok.pad_token_id,
+                bos_token_id=tok.bos_token_id,
+                eos_token_id=tok.eos_token_id
+            )
+        # pre_update_text = tok.decode(output_ids.tolist()[0][token_ids.size(1):])
+        pre_update_text = tok.decode(output_ids.tolist()[0])
+        pre_update_text = pre_update_text.replace("<NL>", "\n")
+        print(pre_update_text)
 
     print_loud(f"Applying {alg_name} to model")
     model_new, orig_weights = apply_method(
@@ -74,44 +75,45 @@ def demo_model_editing(
     )
 
     print_loud("Generating post-update text")
-    post_update_text = generate_fast(
-        model_new, tok, generation_prompts, max_out_len=100
-    )
-    print(post_update_text)
+    # post_update_text = generate_fast(
+    #     model_new, tok, generation_prompts, max_out_len=100
+    # )
+    # print(post_update_text)
 
     # オーダーメイド出力用
-    # for prompt in generation_prompts:
-    #     token_ids = tok.encode(prompt, add_special_tokens=False, return_tensors="pt")
-    #     with torch.no_grad():
-    #         output_ids = model.generate(
-    #             token_ids.to(model.device),
-    #             do_sample=True,
-    #             max_new_tokens=128,
-    #             temperature=0.7,
-    #             pad_token_id=tok.pad_token_id,
-    #             bos_token_id=tok.bos_token_id,
-    #             eos_token_id=tok.eos_token_id
-    #         )
-    #     post_update_text = tok.decode(output_ids.tolist()[0][token_ids.size(1):])
-    #     post_update_text = post_update_text.replace("<NL>", "\n")
-    #     print(post_update_text)
+    for prompt in generation_prompts:
+        token_ids = tok.encode(prompt, add_special_tokens=False, return_tensors="pt")
+        with torch.no_grad():
+            output_ids = model_new.generate(
+                token_ids.to(model_new.device),
+                do_sample=True,
+                max_new_tokens=128,
+                temperature=0.7,
+                pad_token_id=tok.pad_token_id,
+                bos_token_id=tok.bos_token_id,
+                eos_token_id=tok.eos_token_id
+            )
+        # post_update_text = tok.decode(output_ids.tolist()[0][token_ids.size(1):])
+        post_update_text = tok.decode(output_ids.tolist()[0])
+        post_update_text = post_update_text.replace("<NL>", "\n")
+        print(post_update_text)
 
-    print_loud("Summarizing differences")
-    for i, (prompt, pre, post) in enumerate(
-        zip(generation_prompts, pre_update_text, post_update_text)
-    ):
-        print(pre)
-        print(post)
-        if i > 0:
-            print("".join(["-" for _ in range(10)]))
+    # print_loud("Summarizing differences")
+    # for i, (prompt, pre, post) in enumerate(
+    #     zip(generation_prompts, pre_update_text, post_update_text)
+    # ):
+    #     print(pre)
+    #     print(post)
+    #     if i > 0:
+    #         print("".join(["-" for _ in range(10)]))
 
-        prompt_str = "[Prompt]:"
-        pre_str = f"[Pre-{alg_name}]:"
-        post_str = f"[Post-{alg_name}]:"
-        pad_to = 1 + max(len(prompt_str), len(pre_str), len(post_str))
+    #     prompt_str = "[Prompt]:"
+    #     pre_str = f"[Pre-{alg_name}]:"
+    #     post_str = f"[Post-{alg_name}]:"
+    #     pad_to = 1 + max(len(prompt_str), len(pre_str), len(post_str))
 
-        for s, t in zip([prompt_str, post_str, pre_str], [prompt, post, pre]):
-            print_and_save(s.ljust(pad_to) + t, file_path)
+    #     for s, t in zip([prompt_str, post_str, pre_str], [prompt, post, pre]):
+    #         print_and_save(s.ljust(pad_to) + t, file_path)
 
     return model_new, orig_weights
 

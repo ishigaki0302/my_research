@@ -98,19 +98,22 @@ def layer_stats(
         # print(dict(wikitext="wikitext-103-raw-v1", wikipedia="20200501.en")[ds_name])
         # ---------------------------------------------
         # 英語wiki
-        raw_ds = load_dataset(
-            ds_name,
-            dict(wikitext="wikitext-103-raw-v1", wikipedia="20200501.en")[ds_name],
-            # dict(wikitext="wikitext-103-raw-v1", wikipedia="20200501.ja")[ds_name],
-        )
-        print(raw_ds)
+        # raw_ds = load_dataset(
+        #     ds_name,
+        #     dict(wikitext="wikitext-103-raw-v1", wikipedia="20200501.en")[ds_name],
+        #     # dict(wikitext="wikitext-103-raw-v1", wikipedia="20200501.ja")[ds_name],
+        # )
         # ---------------------------------------------
         # 日本語wiki
-        # df = pd.read_csv('data/wiki2.csv')
-        # raw_ds = csv_to_dataset(df)
+        df = pd.read_csv('data/wiki2.csv')
+        df = df.dropna()# Noneの要素があり、エラーが出ていた。
+        raw_ds = csv_to_dataset(df)
+        # raw_ds_jp = csv_to_dataset(df)
         # ---------------------------------------------
+        print(raw_ds)
         # import pdb;pdb.set_trace()
         # ---------------------------------------------
+
         # raw_ds = load_dataset("wikipedia", language="ja", date="20230301", beam_runner="DirectRunner")
         # print(raw_ds)
         # 日本語でやろうとしたらエラー
@@ -124,6 +127,7 @@ def layer_stats(
         #     date="20210120",
         # )["train"]
         # print(raw_ds)
+
         # maxlen = model.config.n_positions
         maxlen = 2048
         if batch_tokens is not None and batch_tokens < maxlen:

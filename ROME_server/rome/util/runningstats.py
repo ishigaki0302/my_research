@@ -95,6 +95,23 @@ def tally(stat, dataset, cache=None, quiet=False, **kwargs):
         dataset, only the first N items are sampled.  If additionally
         random_sample=S is specified, the pseudorandom seed S will be
         used to select a fixed psedorandom sample of size N to sample.
+    
+    tallyを使用するには、次のようなコードを書きます。
+        stat = Mean()
+        ds = MyDataset()
+        for batch in tally(stat, ds, cache='mymean.npz', batch_size=50):
+            stat.add(batch)
+        mean = stat.mean()
+    第一引数には計算されるStatを指定します。ローダーが使い果たされた後、tallyはこの統計をCPUに移動し、キャッシュする（キャッシュが指定されていれば）。
+    データセットは、torch DatasetまたはプレーンなTensor、またはそれらを返すcallableである可能性があります。
+    キャッシュ引数を使ったキャッシングの詳細：
+    指定されたファイル名から統計をロードできない場合、tallyは統計オブジェクトを空のままにし、DataLoaderオブジェクトをセットアップしてループを実行できるようにします。ループの最後の反復の後、完了した統計はCPUデバイスに移動され、キャッシュファイルにも保存されます。
+    指定されたファイルからキャッシュされた統計をロードできる場合、tallyはデータローダーをセットアップせず、代わりに完全にロードされた統計オブジェクト（CPUデバイス上）と空のリストをローダーとして返します。
+    with cache_load_enabled(False): コンテキストマネージャーを使用して、キャッシュからのロードを無効にすることができます。
+    必要に応じて、データセットをラップするためにDataLoaderが作成されます：
+    tallyのキーワード引数はDataLoaderに渡されるので、batch_size、num_workers、pin_memoryなどを指定できます。
+    サブサンプリングは、sample_size=およびrandom_sample=を介してサポートされています：
+    sample_size=Nが指定された場合、データセット全体をロードする代わりに、最初のNアイテムのみがサンプルとして選ばれます。さらにrandom_sample=Sが指定された場合、疑似乱数シードSが使用されて、サイズNの固定疑似乱数サンプルが選ばれます。
     """
     assert isinstance(stat, Stat)
     args = {}
@@ -112,6 +129,16 @@ def tally(stat, dataset, cache=None, quiet=False, **kwargs):
         return empty_loader()
     loader = make_loader(dataset, **kwargs)
 
+    """""
+    この wrapped_loader 関数は、Pythonにおけるジェネレータ関数の一例です。ジェネレータ関数は、イテレータ（反復可能オブジェクト）を返す関数で、yield ステートメントを使用して値を一度に一つずつ生成します。この関数の具体的な動作を解説します：
+    yield from loader:
+    この行は、loader（他のイテレータやジェネレータを指している可能性が高い）から値を一つずつ取り出し、それらをそのまま wrapped_loader の呼び出し元に渡します。yield from はPython 3.3以降で導入された構文で、主にジェネレータやイテレータの中の値を繰り返し処理する際に使われます。
+    stat.to_(device="cpu"):
+    ここでは、stat（恐らく何らかの状態や統計を表すオブジェクト）のデータをCPUに移動しています。この行は、深層学習でよく使われるテクニックで、計算用のデータをGPUからCPUに移動する際に使用されます。これにより、データが次の処理段階で使用される際に、適切なデバイス上に配置されていることが保証されます。
+    if cache is not None: および save_cached_state(cache, stat, args):
+    この部分は条件付きでキャッシュに関連する処理を行っています。cache が None でない場合（つまりキャッシュが存在する場合）、save_cached_state 関数を呼び出して cache、stat、args を保存または更新します。これは、計算状態や中間結果をキャッシュしておき、プログラムの再実行時などに再計算を避けるために使われる一般的なテクニックです。
+    この関数の全体的な目的は、loader からデータを反復処理し、特定の状態をCPUに移動させ、キャッシュがあればそれを更新することです。深層学習のコンテキストでよく見られるパターンで、データのローディングと処理の効率化を図るために使用されることが多いです。
+    """""
     def wrapped_loader():
         yield from loader
         stat.to_(device="cpu")

@@ -69,9 +69,10 @@ def compute_v(
     # Set up an optimization over a latent vector that, when output at the
     # rewrite layer, i.e. hypothesized fact lookup location, will induce the
     # target token to be predicted at the final layer.
-    print("romeworkspace/rome/rome/compute_v.py")
-    # delta = torch.zeros((2816,), requires_grad=True, device="cuda")
-    delta = torch.zeros((model.config.n_embd,), requires_grad=True, device="cuda")
+    print("romeworkspace/rome/rome/compute_v.py:72")
+    # rinna/japanese-gpt-neox-3.6b-instruction-sftは、model.config.n_embdがないので、ベタ打ち
+    delta = torch.zeros((2816,), requires_grad=True, device="cuda")
+    # delta = torch.zeros((model.config.n_embd,), requires_grad=True, device="cuda")
     target_init, kl_distr_init = None, None
 
     # Inserts new "delta" variable at the appropriate part of the computation
@@ -259,7 +260,6 @@ def find_fact_lookup_idx(
         )[0][0]
     else:
         raise ValueError(f"fact_token={fact_token_strategy} not recognized")
-
     sentence = prompt.format(subject)
     if verbose:
         print(

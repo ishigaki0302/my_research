@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import re
+import unicodedata
 from collections import defaultdict
 
 import numpy
@@ -467,7 +468,6 @@ class ModelAndTokenizer:
             print("experiments/causal_trace 467")
             # tokenizer = AutoTokenizer.from_pretrained(model_name)
             tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
-            # tokenizer = AutoTokenizer.from_pretrained(model_name)
         if model is None:
             assert model_name is not None
             print("experiments/causal_trace 472")
@@ -692,7 +692,29 @@ def find_token_range(tokenizer, token_array, substring):
     try:
         char_loc = whole_string.index(substring) # もとのコード
     except:
-        char_loc = whole_string.index(substring.replace(" ","")) # 日本語LLMを使うとき用
+        char_loc = None
+    try:
+        if char_loc is None:
+            char_loc = whole_string.index(substring.replace(" ","")) # 日本語LLMを使うとき用
+    except:
+        char_loc = None
+    try:
+        if char_loc is None:
+            """""
+            ジャン=ピエール・ヴァン・ロッセムはどの国の市民権を持っていますか?</s>                                                                       d
+            ジャン＝ピエール・ヴァン・ロッセム
+            """""
+            char_loc = whole_string.index(substring.replace("＝", "="))
+    except:
+        char_loc = None
+    
+    if char_loc is None:
+        """""
+        ムアーウィヤ1世はどの宗教と関連していますか?</s>
+        ムアーウィヤ１世
+        """""
+        char_loc = whole_string.index(unicodedata.normalize('NFKC', substring)) # もとのコード
+
     loc = 0
     tok_start, tok_end = None, None
     for i, t in enumerate(toks):
