@@ -45,12 +45,12 @@ plt.rcParams["mathtext.fontset"] = "dejavuserif"
 # arch = "gpt2-xl"
 # archname = "GPT-2-XL"
 
-# arch = 'EleutherAI_gpt-j-6B'
-# archname = 'GPT-J-6B'
+arch = 'EleutherAI_gpt-j-6B'
+archname = 'GPT-J-6B'
 
 # arch = 'rinna_japanese-gpt-neox-3.6b-instruction-sft'
-arch = "rinna_japanese-gpt-neox-3.6b"
-archname = 'GPT-NEOX-3.6B'
+# arch = "rinna_japanese-gpt-neox-3.6b"
+# archname = 'GPT-NEOX-3.6B'
 
 # arch = 'EleutherAI_gpt-neox-20b'
 # archname = 'GPT-NeoX-20B'
@@ -60,9 +60,9 @@ dt_now = datetime.datetime.now()
 
 torch.set_grad_enabled(False)
 # model_name = "gpt2-xl"
-# model_name = "EleutherAI/gpt-j-6B"
-model_name = "rinna/japanese-gpt-neox-3.6b-instruction-sft"
-model_name = "rinna/japanese-gpt-neox-3.6b"
+model_name = "EleutherAI/gpt-j-6B"
+# model_name = "rinna/japanese-gpt-neox-3.6b-instruction-sft"
+# model_name = "rinna/japanese-gpt-neox-3.6b"
 '''''
 使うときは,
 experiments.causal_traceのpredict_from_input
@@ -77,8 +77,8 @@ mt = ModelAndTokenizer(
 )
 
 # CSVファイルのパス
-# csv_file_path = 'data/text_data_converted_to_csv.csv'
-csv_file_path = "data/en2jp_data.csv"
+csv_file_path = 'data/text_data_converted_to_csv.csv'
+# csv_file_path = "data/en2jp_data.csv"
 df = pd.read_csv(csv_file_path)
 df = df.dropna()
 data_len = len(df)
@@ -306,8 +306,8 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
     # for i, knowledge in enumerate(knowns[:data_len]):
     for i, knowledge in df[:data_len].iterrows():
         # prompt = knowledge["prompt"] # 穴埋め形式の英語
-        new_prompt = knowledge["prompt"] # 質問形式の日本語
-        # new_prompt = knowledge["new_prompt"] # 質問形式の英語
+        # new_prompt = knowledge["prompt"] # 質問形式の日本語
+        new_prompt = knowledge["new_prompt"] # 質問形式の英語
         subject = knowledge["subject"]
         attribute = knowledge["attribute"]
         # new_prompt = change_prompt_client.send(prompt, subject, attribute)
@@ -334,9 +334,14 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
         avg_ee.add_all(scores[first_e + 1 : last_e])
         avg_le.add(scores[last_e])
         # First after, middle after, last after
-        avg_fa.add(scores[first_a])
-        avg_ea.add_all(scores[first_a + 1 : last_a])
-        avg_la.add(scores[last_a])
+        try:
+            avg_fa.add(scores[first_a])
+            avg_ea.add_all(scores[first_a + 1 : last_a])
+            avg_la.add(scores[last_a])
+        except:
+            avg_fa.add(scores[-1])
+            avg_ea.add_all(scores[-1 : ])
+            avg_la.add(scores[-1])
 
     result = numpy.stack(
         [
@@ -525,8 +530,8 @@ the_count = data_len
 count = data_len
 high_score = None  # Scale all plots according to the y axis of the first plot
 
-# for kind in [None, "mlp", "attn"]:
-for kind in ["mlp", "attn"]:
+for kind in [None, "mlp", "attn"]:
+# for kind in ["mlp", "attn"]:
     d = read_knowlege(the_count, kind, arch)
     count = d["size"]
     what = {

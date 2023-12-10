@@ -11,6 +11,8 @@ sys_path_to_root()
 
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
+# model = AutoModelForCausalLM.from_pretrained("EleutherAI/gpt-j-6B")
+# tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
 
 tokenizer = AutoTokenizer.from_pretrained("rinna/japanese-gpt-neox-3.6b-instruction-sft", use_fast=False)
 model = AutoModelForCausalLM.from_pretrained("rinna/japanese-gpt-neox-3.6b-instruction-sft")
