@@ -35,32 +35,9 @@ from change_prompt import ChangePrompt
 
 data_len = 1000
 
-torch.set_grad_enabled(False)
-
 # model_name = "gpt2-xl"
 # model_name = "EleutherAI/gpt-j-6B"
-# model_name = "rinna/japanese-gpt-neox-3.6b-instruction-sft"
-model_name = "rinna/japanese-gpt-neox-3.6b"
-'''''
-使うときは,
-experiments.causal_traceのpredict_from_input
-char_loc = whole_string.index(substring)
-p, preds = probs[0, o_index], torch.Tensor(o_index).int()
-を書き換える。
-'''''
-mt = ModelAndTokenizer(
-    model_name,
-    torch_dtype=(torch.float16 if "20b" in model_name else None),
-)
-
-# CSVファイルのパス
-# csv_file_path = 'data/text_data_converted_to_csv.csv'
-csv_file_path = "data/en2jp_data.csv"
-df = pd.read_csv(csv_file_path)
-
-knowns = KnownsDataset(DATA_DIR)  # Dataset of known facts
-noise_level = 3 * collect_embedding_std(mt, [k["subject"] for k in knowns])
-print(f"Using noise level {noise_level}")
+model_name = "rinna/japanese-gpt-neox-3.6b-instruction-sft"
 
 def trace_with_repatch(
     model,  # The model
@@ -107,8 +84,7 @@ def trace_with_repatch(
     for first_pass in [True, False] if states_to_unpatch else [False]:
         with torch.no_grad(), nethook.TraceDict(
             model,
-            ["embed_out.weight"] + list(patch_spec.keys()) + list(unpatch_spec.keys()),
-            # ["transformer.wte"] + list(patch_spec.keys()) + list(unpatch_spec.keys()),
+            ["transformer.wte"] + list(patch_spec.keys()) + list(unpatch_spec.keys()),
             edit_output=patch_rep,
         ) as td:
             outputs_exp = model(**inp)
@@ -214,16 +190,16 @@ def trace_important_states_3(
         table.append(torch.stack(row))
     return torch.stack(table)
 
-# prefix = "Megan Rapinoe plays the sport of"
-# entity = "Megan Rapinoe"
-# attribute = "soccer"
+prefix = "Megan Rapinoe plays the sport of"
+entity = "Megan Rapinoe"
+attribute = "soccer"
 
-# no_attn_r = calculate_hidden_flow_3(
-#     mt, prefix, entity, attribute, disable_mlp=True, noise=noise_level
-# )
-# plot_trace_heatmap(no_attn_r, title="Impact with MLP at last subject token disabled")
-# ordinary_r = calculate_hidden_flow_3(mt, prefix, entity, attribute, noise=noise_level)
-# plot_trace_heatmap(ordinary_r, title="Impact with MLP enabled as usual")
+no_attn_r = calculate_hidden_flow_3(
+    mt, prefix, entity, attribute, disable_mlp=True, noise=noise_level
+)
+plot_trace_heatmap(no_attn_r, title="Impact with MLP at last subject token disabled")
+ordinary_r = calculate_hidden_flow_3(mt, prefix, entity, attribute, noise=noise_level)
+plot_trace_heatmap(ordinary_r, title="Impact with MLP enabled as usual")
 
 def plot_last_subject(mt, prefix, entity, attribute, token_range="last_subject", savepdf=None):
     ordinary, no_attn, no_mlp = calculate_last_subject(
@@ -377,12 +353,11 @@ all_ordinary = []
 all_no_attn = []
 all_no_mlp = []
 # change_prompt_client = ChangePrompt()
-# for i, knowledge in enumerate(knowns[:data_len]):
+# for i, knowledge in enumerate(tqdm.tqdm(knowns[:1000])):
 for i, knowledge in df[:data_len].iterrows():
     # plot_all_flow(mt, knowledge['prompt'], knowledge['subject'])
-    # prompt = knowledge["prompt"] # 穴埋め形式の英語
-    new_prompt = knowledge["prompt"] # 質問形式の日本語
-    # new_prompt = knowledge["new_prompt"] # 質問形式の英語
+    # prompt = knowledge["prompt"]
+    new_prompt = knowledge["new_prompt"]
     subject = knowledge["subject"]
     attribute = knowledge["attribute"]
     # new_prompt = change_prompt_client.send(prompt, subject, attribute)

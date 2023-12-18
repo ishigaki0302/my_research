@@ -28,8 +28,8 @@ while True:
 # /home/ishigaki/IshigakiWorkspace/my_research/ROME_server/rome/rome/compute_v.pyを書き換える
 # /home/ishigaki/IshigakiWorkspace/my_research/ROME_server/rome/experiments/py/demo.pyを書き換える
 # MODEL_NAME = "gpt2-xl"  # gpt2-{medium,large,xl} or EleutherAI/gpt-j-6B
-# MODEL_NAME = "rinna/japanese-gpt-neox-3.6b"
-MODEL_NAME = "rinna/japanese-gpt-neox-3.6b-instruction-sft"
+MODEL_NAME = "rinna/japanese-gpt-neox-3.6b"
+# MODEL_NAME = "rinna/japanese-gpt-neox-3.6b-instruction-sft"
 
 ALG_NAME = "ROME"
 
@@ -62,10 +62,18 @@ elif mode == "q":
             "target_new": {"str": "Microsoft"},
         }
     ]
+# elif mode == "jq":
+#     request = [
+#         {
+#             "prompt": "ユーザー: {}が設立したものは何ですか？<NL>システム: ",
+#             "subject": "スティーブ・ジョブズ",
+#             "target_new": {"str": "Microsoft"},
+#         }
+#     ]
 elif mode == "jq":
     request = [
         {
-            "prompt": "ユーザー: {}が設立したものは何ですか？<NL>システム: ",
+            "prompt": "{}が設立したものは何ですか？",
             "subject": "スティーブ・ジョブズ",
             "target_new": {"str": "Microsoft"},
         }
@@ -78,13 +86,22 @@ if mode == "f" or mode == "q":
         "Steve Jobs was responsible for",
         "Steve Jobs worked for",
     ]
+# elif mode == "jq":
+#     generation_prompts = [
+#         "ユーザー: あなたの好きなスティーブ・ジョブズの製品はなんですか？<NL>システム: ",
+#         "ユーザー: スティーブ・ジョブズが作ったもので最も有名なのはなんですか？<NL>システム: ",
+#         "ユーザー: スティーブ・ジョブズの最大の功績はなんですか？<NL>システム: ",
+#         "ユーザー: スティーブ・ジョブズが担当したのはなんですか？<NL>システム: ",
+#         "ユーザー: スティーブ・ジョブズの仕事はなんですか？<NL>システム: ",
+#     ]
 elif mode == "jq":
     generation_prompts = [
-        "ユーザー: あなたの好きなスティーブ・ジョブズの製品はなんですか？<NL>システム: ",
-        "ユーザー: スティーブ・ジョブズが作ったもので最も有名なのはなんですか？<NL>システム: ",
-        "ユーザー: スティーブ・ジョブズの最大の功績はなんですか？<NL>システム: ",
-        "ユーザー: スティーブ・ジョブズが担当したのはなんですか？<NL>システム: ",
-        "ユーザー: スティーブ・ジョブズの仕事はなんですか？<NL>システム: ",
+        "スティーブ・ジョブズが設立したものは何ですか？",
+        "あなたの好きなスティーブ・ジョブズの製品はなんですか？",
+        "スティーブ・ジョブズが作ったもので最も有名なのはなんですか？",
+        "スティーブ・ジョブズの最大の功績はなんですか？",
+        "スティーブ・ジョブズが担当したのはなんですか？",
+        "スティーブ・ジョブズの仕事はなんですか？",
     ]
 # request = [
 #     {

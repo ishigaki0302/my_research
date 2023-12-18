@@ -15,6 +15,7 @@ print(os.getcwd())
 import numpy, os
 import pandas as pd
 from matplotlib import pyplot as plt
+from matplotlib.ticker import ScalarFormatter
 import math
 import datetime
 import torch
@@ -46,18 +47,19 @@ plt.rcParams["mathtext.fontset"] = "dejavuserif"
 # arch = "gpt2-xl"
 # archname = "GPT-2-XL"
 
-arch = 'EleutherAI_gpt-j-6B'
-archname = 'GPT-J-6B'
+# arch = 'EleutherAI_gpt-j-6B_original'
+# arch = 'EleutherAI_gpt-j-6B'
+# archname = 'GPT-J-6B'
 
 # arch = 'rinna_japanese-gpt-neox-3.6b-instruction-sft'
-# arch = "rinna_japanese-gpt-neox-3.6b"
-# archname = 'GPT-NEOX-3.6B'
+arch = "rinna_japanese-gpt-neox-3.6b"
+archname = 'GPT-NEOX-3.6B'
 
 # arch = 'EleutherAI_gpt-neox-20b'
 # archname = 'GPT-NeoX-20B'
 
 dt_now = datetime.datetime.now()
-data_len = 1000
+data_len = 500
 
 # torch.set_grad_enabled(False)
 # model_name = "gpt2-xl"
@@ -129,7 +131,7 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl", all_flow_data=[]):
         avg_fle,
         avg_fla,
     ) = [Avg() for _ in range(11)]
-    for i, data in enumerate(all_flow_data):
+    for i, data in enumerate(all_flow_data[:data_len]):
         scores = data["scores"].to('cpu')
         first_e, first_a = data["subject_range"]
         last_e = first_a - 1
@@ -217,13 +219,12 @@ def plot_array(
         "Further tokens",
         "Last token",
     ]
-
     fig, ax = plt.subplots(figsize=(3.5, 2), dpi=200)
     h = ax.pcolor(
         differences,
         cmap={None: "Purples", "mlp": "Greens", "attn": "Reds"}[kind],
-        # vmin=low_score,
-        # vmax=high_score,
+        vmin=low_score,
+        vmax=high_score,
     )
     if title:
         ax.set_title(title)
@@ -237,10 +238,13 @@ def plot_array(
     else:
         ax.set_xlabel(f"center of interval of 10 patched {kind} layers")
     cb = plt.colorbar(h)
+    # カラーバーを作成し、ScalarFormatter を設定
+    # formatter = ScalarFormatter(useOffset=False)  # オフセットを使用しない
+    # formatter.set_powerlimits((0, 0))  # すべての数値を指数形式で表示
+    # cb = plt.colorbar(h, format=formatter)
     # The following should be cb.ax.set_xlabel(answer), but this is broken in matplotlib 3.5.1.
     if answer:
         cb.ax.set_title(str(answer).strip(), y=-0.16, fontsize=10)
-
     if savepdf:
         os.makedirs(os.path.dirname(savepdf), exist_ok=True)
         plt.savefig(savepdf, bbox_inches="tight")

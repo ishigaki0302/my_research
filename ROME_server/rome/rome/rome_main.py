@@ -77,9 +77,9 @@ def execute_rome(
     # Update target and print info
     request = deepcopy(request)
     # 通常だと、文章の続きを生成するので、空白がない場合は空白を入れる。
-    if request["target_new"]["str"][0] != " ":
-        # Space required for correct tokenization
-        request["target_new"]["str"] = " " + request["target_new"]["str"]
+    # if request["target_new"]["str"][0] != " ":
+    #     # Space required for correct tokenization
+    #     request["target_new"]["str"] = " " + request["target_new"]["str"]
     print(
         f"Executing ROME algorithm for the update: "
         f"[{request['prompt'].format(request['subject'])}] -> [{request['target_new']['str']}]"
@@ -166,17 +166,27 @@ def get_context_templates(model, tok, length_params):
     global CONTEXT_TEMPLATES_CACHE
 
     if CONTEXT_TEMPLATES_CACHE is None:
+        token_ids = tok.encode("<|endoftext|>", add_special_tokens=False, return_tensors="pt")
         CONTEXT_TEMPLATES_CACHE = ["{}"] + [
             x + ". {}"
             for x in sum(
                 (
-                    generate_fast(
-                        model,
-                        tok,
-                        ["<|endoftext|>"],
-                        n_gen_per_prompt=n_gen,
-                        max_out_len=length,
-                    )
+                    # generate_fast(
+                    #     model,
+                    #     tok,
+                    #     ["<|endoftext|>"],
+                    #     n_gen_per_prompt=n_gen,
+                    #     max_out_len=length,
+                    # )
+                    [tok.decode(model.generate(
+                        token_ids.to(model.device),
+                        do_sample=True,
+                        max_new_tokens=length,
+                        temperature=0.7,
+                        pad_token_id=tok.pad_token_id,
+                        bos_token_id=tok.bos_token_id,
+                        eos_token_id=tok.eos_token_id
+                    ).tolist()[0])]
                     for length, n_gen in length_params
                 ),
                 [],

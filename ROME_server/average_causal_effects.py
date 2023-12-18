@@ -48,24 +48,33 @@ plt.rcParams["mathtext.fontset"] = "dejavuserif"
 # arch = "gpt2-xl"
 # archname = "GPT-2-XL"
 
-arch = 'EleutherAI_gpt-j-6B_original'
-archname = 'GPT-J-6B'
+# arch = 'EleutherAI_gpt-j-6B'
+# arch = 'EleutherAI_gpt-j-6B_original'
+# archname = 'GPT-J-6B'
+
+arch = "naclbit_gpt-j-japanese-6.8b"
+archname = 'GPT-J-japanese-6B'
 
 # arch = 'rinna_japanese-gpt-neox-3.6b-instruction-sft'
 # arch = "rinna_japanese-gpt-neox-3.6b"
 # archname = 'GPT-NEOX-3.6B'
 
+# arch = "rinna_japanese-gpt2-medium"
+# archname = "GPT-2-MEDIUM"
+
 # arch = 'EleutherAI_gpt-neox-20b'
 # archname = 'GPT-NeoX-20B'
 
 dt_now = datetime.datetime.now()
-data_len = 1000
+# data_len = 1000
 
 torch.set_grad_enabled(False)
 # model_name = "gpt2-xl"
-model_name = "EleutherAI/gpt-j-6B"
+# model_name = "EleutherAI/gpt-j-6B"
 # model_name = "rinna/japanese-gpt-neox-3.6b-instruction-sft"
 # model_name = "rinna/japanese-gpt-neox-3.6b"
+# model_name = "rinna/japanese-gpt2-medium"
+model_name = "naclbit/gpt-j-japanese-6.8b"
 '''''
 使うときは,
 experiments.causal_traceのpredict_from_input
@@ -81,10 +90,10 @@ mt = ModelAndTokenizer(
 
 # CSVファイルのパス
 # csv_file_path = 'data/text_data_converted_to_csv.csv'
-# csv_file_path = "data/en2jp_data.csv"
-# df = pd.read_csv(csv_file_path)
+csv_file_path = "data/en2jp_data.csv"
+df = pd.read_csv(csv_file_path)
 # df = df.dropna()
-# data_len = len(df)
+data_len = len(df)
 
 knowns = KnownsDataset(DATA_DIR)  # Dataset of known facts
 noise_level = 3 * collect_embedding_std(mt, [k["subject"] for k in knowns])
@@ -306,20 +315,20 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
         avg_fla,
     ) = [Avg() for _ in range(11)]
     all_flow_data = []
-    for i, knowledge in enumerate(knowns[:data_len]):
-    # for i, knowledge in df[:data_len].iterrows():
-        prompt = knowledge["prompt"] # 穴埋め形式の英語
-        # new_prompt = knowledge["prompt"] # 質問形式の日本語
+    # for i, knowledge in enumerate(knowns[:data_len]):
+    for i, knowledge in df[:data_len].iterrows():
+        # prompt = knowledge["prompt"] # 穴埋め形式の英語
+        new_prompt = knowledge["prompt"] # 質問形式の日本語
         # new_prompt = knowledge["new_prompt"] # 質問形式の英語
         subject = knowledge["subject"]
         attribute = knowledge["attribute"]
         # new_prompt = change_prompt_client.send(prompt, subject, attribute)
-        print(f'prompt: {prompt}')
+        # print(f'prompt: {prompt}')
         print(f'subject: {subject}')
         print(f'attribute: {attribute}')
-        # print(f'new_prompt: {new_prompt}')
-        data = plot_all_flow(mt, prompt=knowledge["prompt"], subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
-        # data = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
+        print(f'new_prompt: {new_prompt}')
+        # data = plot_all_flow(mt, prompt=prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
+        data = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
         all_flow_data.append(data)
         scores = data["scores"].to('cpu')
         first_e, first_a = data["subject_range"]

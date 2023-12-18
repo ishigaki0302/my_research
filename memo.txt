@@ -1,3 +1,24 @@
+my_research/ROME_server/causal_trace_frozen_mlp_attn.py
+    ["transformer.wte"] + list(patch_spec.keys()) + list(unpatch_spec.keys()),
+
+my_research/ROME_server/rome/rome/rome_main.py
+    # generate_fast(
+    #     model,
+    #     tok,
+    #     ["<|endoftext|>"],
+    #     n_gen_per_prompt=n_gen,
+    #     max_out_len=length,
+    # )
+    [tok.decode(model.generate(
+        token_ids.to(model.device),
+        do_sample=True,
+        max_new_tokens=length,
+        temperature=0.7,
+        pad_token_id=tok.pad_token_id,
+        bos_token_id=tok.bos_token_id,
+        eos_token_id=tok.eos_token_id
+    ).tolist()[0])]
+
 my_research/ROME_server/rome/rome/layer_stats.py
     知識推定に使うwikiデータについて
     英語か日本語か
@@ -6,6 +27,15 @@ my_research/ROME_server/rome/rome/layer_stats.py
     キャッシュを使うか
         # ds = get_ds() if not filename.exists() else None
         ds = get_ds()
+    
+    rinnaモデルにない属性だった
+    # npos = model.config.n_positions
+    npos = 2048
+    npos = model.config.max_position_embeddings
+
+    # maxlen = model.config.n_positions
+    maxlen = 2048
+    maxlen = model.config.max_position_embeddings
 
 my_research/ROME_server/rome/experiments/causal_trace.py
     英語モデルと日本語モデルとで異なるので、修正が必要
@@ -23,6 +53,19 @@ my_research/ROME_server/rome/experiments/causal_trace.py
         print("preds:" + str(preds))
         print("p:" + str(p))
         return preds, p
+    
+    if tokenizer is None:
+        assert model_name is not None
+        print("experiments/causal_trace 467")
+        # tokenizer = AutoTokenizer.from_pretrained(model_name)
+        tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
+    if model is None:
+        assert model_name is not None
+        print("experiments/causal_trace 472")
+        # model = AutoModelForCausalLM.from_pretrained(
+        #     model_name, low_cpu_mem_usage=low_cpu_mem_usage, torch_dtype=torch_dtype
+        # )
+        model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch_dtype)
 
 my_research/ROME_server/causal_trace_main.py
     使うときは,
@@ -114,6 +157,7 @@ my_research/ROME_server/rome/rome/compute_v.py
     print("romeworkspace/rome/rome/compute_v.py:72")
     # rinna/japanese-gpt-neox-3.6b-instruction-sftは、model.config.n_embdがないので、ベタ打ち
     delta = torch.zeros((2816,), requires_grad=True, device="cuda")
+    delta = torch.zeros((model.config.hidden_size,), requires_grad=True, device="cuda")
     # delta = torch.zeros((model.config.n_embd,), requires_grad=True, device="cuda")
 
 my_research/ROME_server/rome/rome/rome_main.py
@@ -123,30 +167,8 @@ my_research/ROME_server/rome/rome/rome_main.py
         #     # Space required for correct tokenization
         #     request["target_new"]["str"] = " " + request["target_new"]["str"]
 
-my_research/ROME_server/rome/rome/layer_stats.py
-    rinnaモデルにない属性だった
-    # npos = model.config.n_positions
-    npos = 2048
-
-    # maxlen = model.config.n_positions
-    maxlen = 2048
-
 my_research/ROME_server/rome/rome/repr_tools.py
     get_words_idxs_in_templatesの切り替え
     まるまる書き換えたので、英語と日本語で書き換える必要あり
     英語用に空白処理がなされている
     文字列操作のロジック：プログラム内で行われる文字列の処理（特に prefixes と suffixes の計算）は、期待される結果に影響を与える可能性があります。例えば、日本語のテキストではスペースが少ないか全くない場合があり、これがトークンのインデックス計算に影響を与える可能性があります。
-
-my_research/ROME_server/rome/experiments/causal_trace.py
-    if tokenizer is None:
-        assert model_name is not None
-        print("experiments/causal_trace 467")
-        # tokenizer = AutoTokenizer.from_pretrained(model_name)
-        tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
-    if model is None:
-        assert model_name is not None
-        print("experiments/causal_trace 472")
-        # model = AutoModelForCausalLM.from_pretrained(
-        #     model_name, low_cpu_mem_usage=low_cpu_mem_usage, torch_dtype=torch_dtype
-        # )
-        model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch_dtype)

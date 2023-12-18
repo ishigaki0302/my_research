@@ -128,8 +128,9 @@ def layer_stats(
         # )["train"]
         # print(raw_ds)
 
-        maxlen = model.config.n_positions
+        # maxlen = model.config.n_positions
         # maxlen = 2048
+        maxlen = model.config.max_position_embeddings
         if batch_tokens is not None and batch_tokens < maxlen:
             maxlen = batch_tokens
         return TokenizedDataset(raw_ds["train"], tokenizer, maxlen=maxlen)
@@ -137,9 +138,10 @@ def layer_stats(
     # Continue with computation of statistics
     batch_size = 100  # Examine this many dataset texts at once
     # print(model.config)
-    npos = model.config.n_positions
-    print("romeworkspace/rome/rome/layer_stats.py:108")
+    # npos = model.config.n_positions
     # npos = 2048
+    npos = model.config.max_position_embeddings
+    print("romeworkspace/rome/rome/layer_stats.py:108")
     if batch_tokens is None:
         batch_tokens = npos * 3  # Sort and divide into batches with this many tokens
     if precision is None:
